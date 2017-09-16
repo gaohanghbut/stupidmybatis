@@ -1,6 +1,6 @@
 package cn.yxffcode.stupidmybatis.spring;
 
-import cn.yxffcode.stupidmybatis.core.DaoProxy;
+import cn.yxffcode.stupidmybatis.core.PagedQueryDaoProxy;
 import cn.yxffcode.stupidmybatis.core.Paged;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
@@ -40,7 +40,7 @@ public class DaoPageQueryAllBeanPostProcessor implements BeanPostProcessor {
     while (type != Object.class) {
       final Annotation annotation = type.getAnnotation(this.annotation);
       if (annotation != null && isMarkedByPaged(type)) {
-        return DaoProxy.wrapNotNull(bean);
+        return PagedQueryDaoProxy.wrapNotNull(bean);
       }
       type = type.getSuperclass();
     }
@@ -48,7 +48,7 @@ public class DaoPageQueryAllBeanPostProcessor implements BeanPostProcessor {
     for (Class<?> in : interfaces) {
       final Annotation annotation = in.getAnnotation(this.annotation);
       if (annotation != null && isMarkedByPaged(in)) {
-        return DaoProxy.wrapNotNull(bean);
+        return PagedQueryDaoProxy.wrapNotNull(bean);
       }
     }
     return bean;

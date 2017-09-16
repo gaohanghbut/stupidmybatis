@@ -78,10 +78,10 @@ List<User> selectAll();
 
 3. 创建DAO代理,用于处理分页上下文
 ```java
-UserDao userDao = DaoProxy.wrapNotNull(sqlSession.getMapper(UserDao.class));
+UserDao userDao = PagedQueryDaoProxy.wrapNotNull(sqlSession.getMapper(UserDao.class));
 ```
 ### 使用Spring
-每次使用DaoProxy创建代理比较繁琐，如果是Spring工程，则可以通过Spring自动创建代理。
+每次使用PagedQueryDaoProxy创建代理比较繁琐，如果是Spring工程，则可以通过Spring自动创建代理。
 
 在Dao上使用任何注解标记,例如@Repository，然后在spring中配置DaoPageQueryAllBeanPostProcessor
 ```xml

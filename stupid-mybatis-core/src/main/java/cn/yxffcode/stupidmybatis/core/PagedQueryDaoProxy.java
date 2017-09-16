@@ -10,18 +10,18 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * @author gaohang on 16/8/5.
  */
-public class DaoProxy extends AbstractInvocationHandler {
+public class PagedQueryDaoProxy extends AbstractInvocationHandler {
 
   private final Object target;
 
-  public DaoProxy(final Object target) {
+  public PagedQueryDaoProxy(final Object target) {
     this.target = checkNotNull(target);
   }
 
   public static Object wrapNotNull(Object target) {
     checkNotNull(target);
     return Proxy.newProxyInstance(Thread.currentThread().getContextClassLoader(),
-        target.getClass().getInterfaces(), new DaoProxy(target));
+        target.getClass().getInterfaces(), new PagedQueryDaoProxy(target));
   }
 
   @Override
