@@ -109,12 +109,7 @@ public interface UserDao {
   @ResultMap("mapMapper")//指定一个名为mapMapper的返回Map的ResultMap
   @MapperMethod("mapToUser")//转换mapMapper返回的Map
   User selectById(@Param("id") int id);
-  @TypeResultMap({
-      @Result(property = "id", column = "id"),
-      @Result(property = "name", column = "name")
-  })
-  Map mapMapper();
-
+  
   /**
    *  mapMapper is a result map
    */
