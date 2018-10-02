@@ -73,6 +73,98 @@ public interface UserDao {
 }
 ```
 
+## 指定默认方法作为ResultMap
+@Results/@TypeResultMap只是简单的映射，没有任务的转换逻辑，假如转换成POJO的时候，需要有转换逻辑（例如多个字段拼接）
+可以指定一个默认方法作为ResultMap，使用方式如下：
+
+```java
+public interface UserDao {
+
+  @Select("select id, name from user where id = #{id}")
+  @MapperMethod("mapToUser")//指定mapToUser方法作为ResultMap
+  User selectById(@Param("id") int id);
+
+  /**
+   * 此方法作为ResultMap，这种用法需要Java8以上
+   */
+  default User mapToUser(Map<String, ?> result) {
+    if (result == null) {
+      return null;
+    }
+    User user = new User();
+    //mybatis返回的map中，字段都是大写
+    user.setId((Integer) result.get("ID"));
+    user.setName((String) result.get("NAME"));
+    return user;
+  }
+}
+```
+映射方法的参数需要是Map
+
+指定默认方法作为ResultMap这种使用方式，还可以结合其它ResultMap，例如：
+```java
+public interface UserDao {
+
+  @Select("select id, name from user where id = #{id}")
+  @ResultMap("mapMapper")//指定一个名为mapMapper的返回Map的ResultMap
+  @MapperMethod("mapToUser")//转换mapMapper返回的Map
+  User selectById(@Param("id") int id);
+\
+  @TypeResultMap({
+      @Result(property = "id", column = "id"),
+      @Result(property = "name", column = "name")
+  })
+  Map mapMapper();
+
+  /**
+   * @param result
+   * @return
+   */
+  default User mapToUser(Map<String, ?> result) {
+    if (result == null) {
+      return null;
+    }
+    User user = new User();
+    user.setId((Integer) result.get("id"));
+    user.setName((String) result.get("name"));
+    return user;
+  }
+
+}
+
+```
+
+上面的例子中，先使用mapMapper将结果转换成Map，再通过mapToUser方法将Map转换成User。
+
+同时使用ResultMap和映射方法的时候，映射方法的参数需要和ResultMap的返回类型相同，
+假如指定的ResultMap返回的是一个POJO对象，比如User，则映射方法的参数需要是User，例如：
+```java
+public interface UserDao {
+
+  @Select("select id, name from user where id = #{id}")
+  @ResultMap("userMapper")
+  @MapperMethod("userTransform")
+  User selectById(@Param("id") int id);
+
+  @TypeResultMap({
+      @Result(property = "id", column = "id"),
+      @Result(property = "name", column = "name")
+  })
+  User userMapper();
+
+  default User userTransform(User user) {
+    if (user == null) {
+      return null;
+    }
+    user.setName("hello " + user.getName());//修改name的值
+    return user;
+  }
+
+}
+
+```
+
+
 ## Mybatis批量插件
 mybatis已有的批量更新比较麻烦，要么写动态sql，要么利用BatchExecutor的SqlSession. 
 在工程中,更加希望DAO中的方法需要批量的时候用批量,不需要批量的时候不用批量. 有两种方式

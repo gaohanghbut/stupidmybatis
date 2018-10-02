@@ -37,8 +37,8 @@ public interface UserDao {
   User selectById(@Param("id") int id);
 
   @Select("select id, name from user where id = #{id}")
-  @ResultMap("mapMapper")
-  @MapperMethod("mapToUser")
+  @ResultMap("userMapper")
+  @MapperMethod("userTransform")
   User selectById2(@Param("id") int id);
 
   @TypeResultMap({
@@ -64,6 +64,16 @@ public interface UserDao {
     User user = new User();
     user.setId((Integer) result.get("id"));
     user.setName((String) result.get("name"));
+    return user;
+  }
+
+  default User userTransform(User user) {
+    if (user == null) {
+      return null;
+    }
+    User u = new User();
+    user.setId(user.getId());
+    user.setName("hello " + user.getName());
     return user;
   }
 
