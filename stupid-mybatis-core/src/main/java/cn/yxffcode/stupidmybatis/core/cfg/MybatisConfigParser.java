@@ -1,12 +1,13 @@
 package cn.yxffcode.stupidmybatis.core.cfg;
 
+import cn.yxffcode.stupidmybatis.commons.Reflections;
 import cn.yxffcode.stupidmybatis.core.statement.TypeResultMap;
 import com.google.common.base.Strings;
 import org.apache.ibatis.annotations.*;
 import org.apache.ibatis.builder.MapperBuilderAssistant;
-import org.apache.ibatis.mapping.Discriminator;
-import org.apache.ibatis.mapping.ResultFlag;
-import org.apache.ibatis.mapping.ResultMapping;
+import org.apache.ibatis.mapping.*;
+import org.apache.ibatis.mapping.ResultMap;
+import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
 import org.apache.ibatis.type.UnknownTypeHandler;
@@ -34,6 +35,18 @@ public abstract class MybatisConfigParser {
       String resultMapId = Strings.isNullOrEmpty(results.id()) ? method.getName() : results.id();
       applyResultMap(resultMapId, returnType, type, assistant, argsIf(args), resultsIf(results), typeDiscriminator);
     }
+  }
+
+  /**
+   * 添加Map类型的ResultMap，覆盖已有的ResultMap
+   *
+   * @param type
+   * @param method
+   * @param assistant
+   */
+  public static void registMapResult(Class<?> type, Method method, MapperBuilderAssistant assistant) {
+    String resultMapId = type.getName() + '.' + method.getName();
+    applyResultMap(resultMapId, Map.class, type, assistant, argsIf(null), resultsIf(null), null);
   }
 
   private static Result[] resultsIf(TypeResultMap results) {

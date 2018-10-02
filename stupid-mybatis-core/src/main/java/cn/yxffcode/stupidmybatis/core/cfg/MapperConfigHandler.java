@@ -9,5 +9,5 @@ import java.lang.reflect.Method;
  * @author gaohang
  */
 public interface MapperConfigHandler<T extends Annotation> {
-  void handleAnnotation(T annotation, Class<?> type, Method method, MapperBuilderAssistant assistant);
+  void handleAnnotation(T annotation, Class<?> type, Method method, MapperBuilderAssistant assistant) throws Throwable;
 }

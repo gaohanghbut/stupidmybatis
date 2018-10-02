@@ -10,4 +10,15 @@ import java.lang.annotation.*;
 @Inherited
 public @interface MapperHandler {
   Class<? extends MapperConfigHandler<?>> value();
+
+  /**
+   * 在mapper接口解析前还是解析后调用
+   * @return
+   */
+  Order order() default Order.BEFORE_CONFIG_PARSE;
+
+  enum Order {
+    BEFORE_CONFIG_PARSE,
+    AFTER_CONFIG_PARSE
+  }
 }

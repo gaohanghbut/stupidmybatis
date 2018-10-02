@@ -32,17 +32,25 @@ public class StupidAnnotationParser extends MapperAnnotationBuilder {
   @Override
   public void parse() {
     Method[] methods = type.getMethods();
+    invokeMapperHandlers(methods, MapperHandler.Order.BEFORE_CONFIG_PARSE);
+    super.parse();
+    invokeMapperHandlers(methods, MapperHandler.Order.AFTER_CONFIG_PARSE);
+  }
+
+  private void invokeMapperHandlers(Method[] methods, MapperHandler.Order order) {
     for (Method method : methods) {
       Annotation[] annotations = method.getAnnotations();
+      if (annotations == null || annotations.length == 0) {
+        continue;
+      }
       for (Annotation annotation : annotations) {
         MapperHandler mapperHandler = annotation.annotationType().getAnnotation(MapperHandler.class);
-        if (mapperHandler == null) {
+        if (mapperHandler == null || mapperHandler.order() != order) {
           continue;
         }
         parseAnnotation(method, mapperHandler, annotation);
       }
     }
-    super.parse();
   }
 
   private void parseAnnotation(Method method, MapperHandler mapperHandler, Annotation annotation) {
@@ -57,7 +65,11 @@ public class StupidAnnotationParser extends MapperAnnotationBuilder {
       }
       mapperHandlers.put(handlerType, mapperConfigHandler);
     }
-    mapperConfigHandler.handleAnnotation(annotation, type, method, mapperBuilderAssistant);
+    try {
+      mapperConfigHandler.handleAnnotation(annotation, type, method, mapperBuilderAssistant);
+    } catch (Throwable throwable) {
+      throw Throwables.propagate(throwable);
+    }
   }
 
 }

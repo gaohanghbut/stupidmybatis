@@ -35,8 +35,9 @@ public class TypeResultMapTest {
     user.setName("test");
     userDao.batchInsert(Collections.singletonList(user));
 
-    System.out.println("users = " + userDao.selectAllMapperTest());
+    System.out.println("outusers = " + userDao.selectAllMapperTest());
     System.out.println("users = " + userDao.selectById(0));
+    System.out.println("users = " + userDao.selectById2(0));
 
   }
 }

@@ -1,7 +1,7 @@
 package cn.yxffcode.stupidmybatis.core.cfg;
 
+import cn.yxffcode.stupidmybatis.core.execution.StupidMapperProxy;
 import org.apache.ibatis.binding.BindingException;
-import org.apache.ibatis.binding.MapperProxy;
 import org.apache.ibatis.binding.MapperRegistry;
 import org.apache.ibatis.builder.annotation.MapperAnnotationBuilder;
 import org.apache.ibatis.session.Configuration;
@@ -26,7 +26,7 @@ public class StupidMapperRegistry extends MapperRegistry {
     if (!knownMappers.contains(type))
       throw new BindingException("Type " + type + " is not known to the MapperRegistry.");
     try {
-      return MapperProxy.newMapperProxy(type, sqlSession);
+      return StupidMapperProxy.newMapperProxy(type, sqlSession);
     } catch (Exception e) {
       throw new BindingException("Error getting mapper instance. Cause: " + e, e);
     }
