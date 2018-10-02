@@ -1,5 +1,76 @@
 # StupidMybatis
-StupidMybatis是一个mybatis插件集，用于简化使用mybatis的过程中的一些痛点，详细见下文。
+StupidMybatis是一个mybatis扩展框架，用于简化使用mybatis的过程中的一些痛点，详细见下文。
+
+## 可复用的Result注解
+mybatis提供的@esults注解只能标记在声明注解的方法上，如果有多个查询方法需要使用到相同的@Results注解，
+只能再次配置一遍@Result或者使用xml，stupidmybatis提供了@TypeResultMap，可使得通过注解配置的Result
+可复用
+
+### 使用方式
+
+通过@Result配置的代码如下：
+```java
+public interface UserDao {
+
+  @Select({
+      "select id, name from user"
+  })
+  @Results({
+      @Result(property = "id", column = "id"),
+      @Result(property = "name", column = "name")
+  })
+  List<User> selectAll();
+
+  @Select("select id, name from user where id = #{id}")
+  @Results({
+        @Result(property = "id", column = "id"),
+        @Result(property = "name", column = "name")
+    })
+    List<User> selectAll();
+  User selectById(@Param("id") int id);
+}
+
+```
+
+可以看到需要重复定义@Results，当使用@TypeResultMap后的代码：
+```java
+public interface UserDao {
+
+  @Select({
+      "select id, name from user"
+  })
+  @ResultMap("userMapper")
+  List<User> selectAll();
+
+  @Select("select id, name from user where id = #{id}")
+  @ResultMap("userMapper")
+  User selectById(@Param("id") int id);
+
+  /**
+   * 定义ResultMap 
+   */
+  @TypeResultMap({
+      @Result(property = "id", column = "idFactory"),
+      @Result(property = "name", column = "name")
+  })
+  User userMapper();
+}
+```
+
+想要使用@TypeResultMap，需要将SqlSessionFactoryBuilder替换成StupidSqlSessionFactoryBuilder,例如：
+```java
+String resource = "mybatis-config.xml";
+InputStream inputStream = Resources.getResourceAsStream(resource);
+SqlSessionFactory sqlSessionFactory = new StupidSqlSessionFactoryBuilder().build(inputStream);
+```
+
+如果使用spring，则spring中的SqlSessionFactoryBean配置如下：
+```xml
+  <bean id = "sqlSession" class="cn.yxffcode.stupidmybatis.spring.StupidSqlSessionFactoryBean">
+    <property name="dataSource" ref="dataSource"/>
+    <property name="configLocation" value="classpath:mybatis-config.xml"/>
+  </bean>
+```
 
 ## Mybatis批量插件
 mybatis已有的批量更新比较麻烦，要么写动态sql，要么利用BatchExecutor的SqlSession. 

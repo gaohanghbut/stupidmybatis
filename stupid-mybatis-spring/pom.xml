@@ -29,6 +29,16 @@
       <groupId>cn.yxffcode.stupidmybatis</groupId>
       <artifactId>stupid-mybatis-core</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-core</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-jdbc</artifactId>
+      <scope>compile</scope>
+    </dependency>
   </dependencies>
 
 </project>

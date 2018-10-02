@@ -11,11 +11,8 @@
     <jdbc:script location="classpath:sql/create-table.sql"/>
   </jdbc:embedded-database>
 
-  <bean class="org.mybatis.spring.SqlSessionFactoryBean">
+  <bean class="cn.yxffcode.stupidmybatis.spring.StupidSqlSessionFactoryBean">
     <property name="dataSource" ref="dataSource"/>
     <property name="configLocation" value="classpath:mybatis-config.xml"/>
-    <property name="sqlSessionFactoryBuilder">
-      <bean class="cn.yxffcode.mybatisbatch.FlexSqlSessionFactoryBuilder"/>
-    </property>
   </bean>
 </beans>
