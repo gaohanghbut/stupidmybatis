@@ -15,6 +15,7 @@ public interface UserDao {
   @Select({
       "select id, name from user"
   })
+  //p定义resultmap
   @Results({
       @Result(property = "id", column = "id"),
       @Result(property = "name", column = "name")
@@ -22,6 +23,7 @@ public interface UserDao {
   List<User> selectAll();
 
   @Select("select id, name from user where id = #{id}")
+  //再次定义相同的resultmap
   @Results({
         @Result(property = "id", column = "id"),
         @Result(property = "name", column = "name")
