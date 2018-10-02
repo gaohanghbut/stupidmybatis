@@ -37,8 +37,8 @@ public interface UserDao {
   User selectById(@Param("id") int id);
 
   @Select("select id, name from user where id = #{id}")
+  @ResultMap("mapMapper")
   @MapperMethod("mapToUser")
-  @ResultMap("selectById2")
   User selectById2(@Param("id") int id);
 
   @TypeResultMap({
@@ -46,6 +46,12 @@ public interface UserDao {
       @Result(property = "name", column = "name")
   })
   User userMapper();
+
+  @TypeResultMap({
+      @Result(property = "id", column = "id"),
+      @Result(property = "name", column = "name")
+  })
+   Map mapMapper();
 
   /**
    * @param result
@@ -56,8 +62,8 @@ public interface UserDao {
       return null;
     }
     User user = new User();
-    user.setId((Integer) result.get("ID"));
-    user.setName((String) result.get("NAME"));
+    user.setId((Integer) result.get("id"));
+    user.setName((String) result.get("name"));
     return user;
   }
 

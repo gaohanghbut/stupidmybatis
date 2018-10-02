@@ -21,7 +21,7 @@ import java.util.List;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
-@MapperHandler(value = MapperMethod.MapperMethodHandler.class)
+@MapperHandler(value = MapperMethod.MapperMethodHandler.class, order = MapperHandler.Order.AFTER_CONFIG_PARSE)
 @MapperResultHandler(MapperMethod.MapperMethodHandler.class)
 public @interface MapperMethod {
 

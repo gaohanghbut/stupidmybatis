@@ -5,8 +5,10 @@ import cn.yxffcode.stupidmybatis.core.statement.TypeResultMap;
 import com.google.common.base.Strings;
 import org.apache.ibatis.annotations.*;
 import org.apache.ibatis.builder.MapperBuilderAssistant;
-import org.apache.ibatis.mapping.*;
+import org.apache.ibatis.mapping.Discriminator;
+import org.apache.ibatis.mapping.ResultFlag;
 import org.apache.ibatis.mapping.ResultMap;
+import org.apache.ibatis.mapping.ResultMapping;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.TypeHandler;
@@ -45,8 +47,14 @@ public abstract class MybatisConfigParser {
    * @param assistant
    */
   public static void registMapResult(Class<?> type, Method method, MapperBuilderAssistant assistant) {
-    String resultMapId = type.getName() + '.' + method.getName();
-    applyResultMap(resultMapId, Map.class, type, assistant, argsIf(null), resultsIf(null), null);
+    String resultMapId = generateResultMapName(type, method);
+    Configuration configuration = assistant.getConfiguration();
+    if (!configuration.hasResultMap(resultMapId)) {
+      applyResultMap(resultMapId, Map.class, type, assistant, argsIf(null), resultsIf(null), null);
+    } else {
+      ResultMap resultMap = configuration.getResultMap(resultMapId);
+      Reflections.setField(resultMap, "type", Map.class);
+    }
   }
 
   private static Result[] resultsIf(TypeResultMap results) {
