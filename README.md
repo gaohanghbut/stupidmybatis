@@ -3,7 +3,7 @@ StupidMybatis是一个mybatis扩展框架，用于简化使用mybatis的过程�
 
 使用StupidMybatis，先将spring中的SqlSessionFactoryBean替换成StupidSqlSessionFactoryBean,使用方式与SqlSessionFactory相同，例如：
 ```xml
-  <bean id = "sqlSessionFactory" class="cn.yxffcode.stupidmybatis.spring.StupidSqlSessionFactoryBean">
+  <bean id = "sqlSession" class="cn.yxffcode.stupidmybatis.spring.StupidSqlSessionFactoryBean">
     <property name="dataSource" ref="dataSource"/>
     <property name="configLocation" value="classpath:mybatis-config.xml"/>
   </bean>
@@ -23,7 +23,7 @@ mybatis提供的@esults注解只能标记在声明注解的方法上，如果有
 
 ### 使用方式
 
-通过@Result配置的代码如下：
+原始的通过@Result配置的代码如下：
 ```java
 public interface UserDao {
 
