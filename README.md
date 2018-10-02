@@ -116,6 +116,15 @@ public interface UserDao {
   Map mapMapper();
 
   /**
+   *  mapMapper is a result map
+   */
+  @TypeResultMap({
+      @Result(property = "id", column = "id"),
+      @Result(property = "name", column = "name")
+  })
+  Map mapMapper();
+
+  /**
    * @param result
    * @return
    */

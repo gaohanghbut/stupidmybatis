@@ -51,7 +51,7 @@ public interface UserDao {
       @Result(property = "id", column = "id"),
       @Result(property = "name", column = "name")
   })
-   Map mapMapper();
+  Map mapMapper();
 
   /**
    * @param result
