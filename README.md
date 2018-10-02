@@ -1,6 +1,21 @@
 # StupidMybatis
 StupidMybatis是一个mybatis扩展框架，用于简化使用mybatis的过程中的一些痛点，详细见下文。
 
+使用StupidMybatis，先将spring中的SqlSessionFactoryBean替换成StupidSqlSessionFactoryBean,使用方式与SqlSessionFactory相同，例如：
+```xml
+  <bean id = "sqlSession" class="cn.yxffcode.stupidmybatis.spring.StupidSqlSessionFactoryBean">
+    <property name="dataSource" ref="dataSource"/>
+    <property name="configLocation" value="classpath:mybatis-config.xml"/>
+  </bean>
+```
+
+如果不使用spring，则需要将SqlSessionFactoryBuilder替换成StupidSqlSessionFactoryBuilder,例如：
+```java
+String resource = "mybatis-config.xml";
+InputStream inputStream = Resources.getResourceAsStream(resource);
+SqlSessionFactory sqlSessionFactory = new StupidSqlSessionFactoryBuilder().build(inputStream);
+```
+
 ## 可复用的Result注解
 mybatis提供的@esults注解只能标记在声明注解的方法上，如果有多个查询方法需要使用到相同的@Results注解，
 只能再次配置一遍@Result或者使用xml，stupidmybatis提供了@TypeResultMap，可使得通过注解配置的Result
@@ -57,21 +72,6 @@ public interface UserDao {
   })
   User userMapper();
 }
-```
-
-想要使用@TypeResultMap，需要将SqlSessionFactoryBuilder替换成StupidSqlSessionFactoryBuilder,例如：
-```java
-String resource = "mybatis-config.xml";
-InputStream inputStream = Resources.getResourceAsStream(resource);
-SqlSessionFactory sqlSessionFactory = new StupidSqlSessionFactoryBuilder().build(inputStream);
-```
-
-如果使用spring，则spring中的SqlSessionFactoryBean配置如下：
-```xml
-  <bean id = "sqlSession" class="cn.yxffcode.stupidmybatis.spring.StupidSqlSessionFactoryBean">
-    <property name="dataSource" ref="dataSource"/>
-    <property name="configLocation" value="classpath:mybatis-config.xml"/>
-  </bean>
 ```
 
 ## Mybatis批量插件
