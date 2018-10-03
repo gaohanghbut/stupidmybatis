@@ -167,6 +167,37 @@ public interface UserDao {
 
 ```
 
+## 调用映射接口的默认方法
+原生mybatis不支持java8的默认方法调用，会有找不到statement的异常，stupidmybatis支持默认方法的调用，例如如下DAO中，mapToUser方法可单独调用
+
+```java
+public interface UserDao {
+
+  @Select("select id, name from user where id = #{id}")
+  @MapperMethod("userTransform")
+  User selectById2(@Param("id") int id);
+
+  default User mapToUser(Map<String, ?> result) {
+    if (result == null) {
+      return null;
+    }
+    User user = new User();
+    user.setId((Integer) result.get("id"));
+    user.setName((String) result.get("name"));
+    return user;
+  }
+
+}
+
+```
+调用默认方法：
+```java
+Map<String, Object> map = Maps.newHashMap();
+map.put("id", 0);
+map.put("name", "hello");
+User user = userDao.mapToUser(map);
+```
+
 
 ## Mybatis批量插件
 mybatis已有的批量更新比较麻烦，要么写动态sql，要么利用BatchExecutor的SqlSession. 
