@@ -24,9 +24,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
 /**
  * @author gaohang
  */
-public abstract class MybatisConfigParser {
+public abstract class MybatisConfigUtils {
 
-  private MybatisConfigParser() {
+  private MybatisConfigUtils() {
   }
 
   public static void parseResultsAndConstructorArgs(Class<?> type, Method method, MapperBuilderAssistant assistant) {

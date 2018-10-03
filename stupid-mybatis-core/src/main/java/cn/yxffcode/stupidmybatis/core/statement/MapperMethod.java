@@ -2,7 +2,7 @@ package cn.yxffcode.stupidmybatis.core.statement;
 
 import cn.yxffcode.stupidmybatis.core.cfg.MapperConfigHandler;
 import cn.yxffcode.stupidmybatis.core.cfg.MapperConfHandler;
-import cn.yxffcode.stupidmybatis.core.cfg.MybatisConfigParser;
+import cn.yxffcode.stupidmybatis.core.cfg.MybatisConfigUtils;
 import cn.yxffcode.stupidmybatis.core.execution.MapperResultHandler;
 import cn.yxffcode.stupidmybatis.core.execution.MapperResultPostHandler;
 import com.google.common.collect.Lists;
@@ -35,7 +35,7 @@ public @interface MapperMethod {
     @Override
     public void handleAnnotation(MapperMethod annotation, Class<?> type, Method method, MapperBuilderAssistant assistant) throws Throwable {
       //将ResultMap设置成返回Map
-      MybatisConfigParser.registMapResult(type, method, assistant);
+      MybatisConfigUtils.registMapResult(type, method, assistant);
     }
 
     @Override

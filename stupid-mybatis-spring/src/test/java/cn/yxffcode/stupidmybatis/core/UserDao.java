@@ -16,9 +16,7 @@ import java.util.Map;
 })
 public interface UserDao {
 
-  @Insert({
-      "insert into user (id, name) values (#{id}, #{name})"
-  })
+  @Insert("insert into user (id, name) values (#{id}, #{name})")
   int batchInsert(List<User> users);
 
   @Select({
@@ -30,9 +28,7 @@ public interface UserDao {
   })
   List<User> selectAll();
 
-  @Select({
-      "select id, name from user"
-  })
+  @Select("select id, name from user")
   @MapperMethod("mapToUser")
   List<User> selectAllMapperTest();
 

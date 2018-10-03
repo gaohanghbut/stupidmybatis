@@ -2,7 +2,7 @@ package cn.yxffcode.stupidmybatis.core.statement;
 
 import cn.yxffcode.stupidmybatis.core.cfg.MapperConfigHandler;
 import cn.yxffcode.stupidmybatis.core.cfg.MapperConfHandler;
-import cn.yxffcode.stupidmybatis.core.cfg.MybatisConfigParser;
+import cn.yxffcode.stupidmybatis.core.cfg.MybatisConfigUtils;
 import org.apache.ibatis.annotations.Result;
 import org.apache.ibatis.builder.MapperBuilderAssistant;
 
@@ -36,7 +36,7 @@ public @interface TypeResultMap {
   final class TypeResultMapHandler implements MapperConfigHandler<TypeResultMap> {
     @Override
     public void handleAnnotation(TypeResultMap annotation, Class<?> type, Method method, MapperBuilderAssistant assistant) {
-      MybatisConfigParser.parseResultsAndConstructorArgs(type, method, assistant);
+      MybatisConfigUtils.parseResultsAndConstructorArgs(type, method, assistant);
     }
   }
 
