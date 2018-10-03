@@ -258,7 +258,7 @@ public interface UserDao {
   @Select("select id, name from user where id = #{id}")
   @MapperMethod("mapToUser")
   @PostProcessResult//此处可使用自定义的结果处理注解
-  User selectById2(@Param("id") int id);
+  User selectById(@Param("id") int id);
 
   default User mapToUser(Map<String, ?> result) {
     if (result == null) {
@@ -275,25 +275,70 @@ public interface UserDao {
 ```
 ### 通过注解对配置的扩展
 可自定义注解用于对mybatis进行配置，注解中需要通过@MapperConfHandler元注解指定
-MapperConfigHandler接口的实现，例如：
+MapperConfigHandler接口的实现，例如实现一个自动在sql后面拼上limit的注解@Limit：
 
 ```java
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
-@MapperConfHandler(AutoMapping.Config.class)
-public @interface AutoMapping {
+@MapperConfHandler(value = Limit.Config.class, order = MapperConfHandler.Order.AFTER_CONFIG_PARSE)
+public @interface Limit {
+
+  /**
+   * @return limit 的大小
+   */
+  int value();
 
   /**
    * 处理返回结果的类
    */
-  final class Config implements MapperConfigHandler<AutoMapping> {
+  final class Config implements MapperConfigHandler<Limit> {
     @Override
-    public void handleAnnotation(AutoMapping annotation, Class<?> type, Method method, MapperBuilderAssistant assistant) throws Throwable {
-      //通过assistant注册配置，不清楚可看看mybatis源码，或者参考@TypeResultMap注解
+    public void handleAnnotation(Limit limit, Class<?> type, Method method, MapperBuilderAssistant assistant) throws Throwable {
+      //通过assistant注册配置，不清楚可看看mybatis源码
+      String statementId = type.getName() + '.' + method.getName();
+      MappedStatement mappedStatement = assistant.getConfiguration().getMappedStatement(statementId);
+      
+      Reflections.setField(mappedStatement, "sqlSource", new SqlSource() {
+        private final SqlSource delegate = mappedStatement.getSqlSource();
+        private final Configuration configuration = assistant.getConfiguration();
+
+        @Override
+        public BoundSql getBoundSql(Object parameterObject) {
+          BoundSql boundSql = delegate.getBoundSql(parameterObject);
+          return new BoundSql(configuration, boundSql.getSql() + "limit " + limit.value(), boundSql.getParameterMappings(), boundSql.getParameterObject());
+        }
+      });
     }
+
   }
 }
+```
+在DAO上使用@Limit
+```java
+@TypeResultMap(id = "userMapper2", resultType = User.class, value = {
+    @Result(property = "id", column = "id"),
+    @Result(property = "name", column = "name")
+})
+public interface UserDao {
+
+  @Select("select id, name from user where id >= #{minId}")
+  @MapperMethod("mapToUser")
+  @Limit(100) //limit 100
+  List<User> selectUsers(@Param("minId") int id);
+
+  default User mapToUser(Map<String, ?> result) {
+    if (result == null) {
+      return null;
+    }
+    User user = new User();
+    user.setId((Integer) result.get("ID"));
+    user.setName((String) result.get("NAME"));
+    return user;
+  }
+
+}
+
 ```
 ## Mybatis批量插件
 mybatis已有的批量更新比较麻烦，要么写动态sql，要么利用BatchExecutor的SqlSession. 
