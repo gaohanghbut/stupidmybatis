@@ -1,7 +1,7 @@
 package cn.yxffcode.stupidmybatis.core.statement;
 
 import cn.yxffcode.stupidmybatis.core.cfg.MapperConfigHandler;
-import cn.yxffcode.stupidmybatis.core.cfg.MapperHandler;
+import cn.yxffcode.stupidmybatis.core.cfg.MapperConfHandler;
 import cn.yxffcode.stupidmybatis.core.cfg.MybatisConfigParser;
 import cn.yxffcode.stupidmybatis.core.execution.MapperResultHandler;
 import cn.yxffcode.stupidmybatis.core.execution.MapperResultPostHandler;
@@ -21,7 +21,7 @@ import java.util.List;
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
-@MapperHandler(value = MapperMethod.MapperMethodHandler.class, order = MapperHandler.Order.AFTER_CONFIG_PARSE)
+@MapperConfHandler(value = MapperMethod.MapperMethodHandler.class, order = MapperConfHandler.Order.AFTER_CONFIG_PARSE)
 @MapperResultHandler(MapperMethod.MapperMethodHandler.class)
 public @interface MapperMethod {
 

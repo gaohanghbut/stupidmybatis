@@ -32,12 +32,12 @@ public class StupidAnnotationParser extends MapperAnnotationBuilder {
   @Override
   public void parse() {
     Method[] methods = type.getMethods();
-    invokeMapperHandlers(methods, MapperHandler.Order.BEFORE_CONFIG_PARSE);
+    invokeMapperHandlers(methods, MapperConfHandler.Order.BEFORE_CONFIG_PARSE);
     super.parse();
-    invokeMapperHandlers(methods, MapperHandler.Order.AFTER_CONFIG_PARSE);
+    invokeMapperHandlers(methods, MapperConfHandler.Order.AFTER_CONFIG_PARSE);
   }
 
-  private void invokeMapperHandlers(Method[] methods, MapperHandler.Order order) {
+  private void invokeMapperHandlers(Method[] methods, MapperConfHandler.Order order) {
     for (Method method : methods) {
       Annotation[] annotations = method.getAnnotations();
       if (annotations == null || annotations.length == 0) {
@@ -48,18 +48,18 @@ public class StupidAnnotationParser extends MapperAnnotationBuilder {
     parseAnnotations(order, null, type.getAnnotations());
   }
 
-  private void parseAnnotations(MapperHandler.Order order, Method method, Annotation[] annotations) {
+  private void parseAnnotations(MapperConfHandler.Order order, Method method, Annotation[] annotations) {
     for (Annotation annotation : annotations) {
-      MapperHandler mapperHandler = annotation.annotationType().getAnnotation(MapperHandler.class);
-      if (mapperHandler == null || mapperHandler.order() != order) {
+      MapperConfHandler mapperConfHandler = annotation.annotationType().getAnnotation(MapperConfHandler.class);
+      if (mapperConfHandler == null || mapperConfHandler.order() != order) {
         continue;
       }
-      parseAnnotation(method, mapperHandler, annotation);
+      parseAnnotation(method, mapperConfHandler, annotation);
     }
   }
 
-  private void parseAnnotation(Method method, MapperHandler mapperHandler, Annotation annotation) {
-    Class<? extends MapperConfigHandler<?>> handlerType = mapperHandler.value();
+  private void parseAnnotation(Method method, MapperConfHandler mapperConfHandler, Annotation annotation) {
+    Class<? extends MapperConfigHandler<?>> handlerType = mapperConfHandler.value();
     //创建实例
     MapperConfigHandler mapperConfigHandler = mapperHandlers.get(handlerType);
     if (mapperConfigHandler == null) {

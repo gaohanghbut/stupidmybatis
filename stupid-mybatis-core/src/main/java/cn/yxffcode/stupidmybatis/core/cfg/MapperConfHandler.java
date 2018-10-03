@@ -10,7 +10,7 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
-public @interface MapperHandler {
+public @interface MapperConfHandler {
   Class<? extends MapperConfigHandler<?>> value();
 
   /**
