@@ -249,26 +249,16 @@ public @interface PostProcessResult {
 ```
 可在DAO上使用@PostProcessResult
 ```java
-@TypeResultMap(id = "userMapper2", resultType = User.class, value = {
+@TypeResultMap(id = "userMapper", resultType = User.class, value = {
     @Result(property = "id", column = "id"),
     @Result(property = "name", column = "name")
 })
 public interface UserDao {
 
   @Select("select id, name from user where id = #{id}")
-  @MapperMethod("mapToUser")
+  @ResultMap("userMapper")
   @PostProcessResult//此处可使用自定义的结果处理注解
   User selectById(@Param("id") int id);
-
-  default User mapToUser(Map<String, ?> result) {
-    if (result == null) {
-      return null;
-    }
-    User user = new User();
-    user.setId((Integer) result.get("ID"));
-    user.setName((String) result.get("NAME"));
-    return user;
-  }
 
 }
 
@@ -316,26 +306,16 @@ public @interface Limit {
 ```
 在DAO上使用@Limit
 ```java
-@TypeResultMap(id = "userMapper2", resultType = User.class, value = {
+@TypeResultMap(id = "userMapper", resultType = User.class, value = {
     @Result(property = "id", column = "id"),
     @Result(property = "name", column = "name")
 })
 public interface UserDao {
 
   @Select("select id, name from user where id >= #{minId}")
-  @MapperMethod("mapToUser")
+  @ResultMap("userMapper")
   @Limit(100) //limit 100
   List<User> selectUsers(@Param("minId") int id);
-
-  default User mapToUser(Map<String, ?> result) {
-    if (result == null) {
-      return null;
-    }
-    User user = new User();
-    user.setId((Integer) result.get("ID"));
-    user.setName((String) result.get("NAME"));
-    return user;
-  }
 
 }
 
