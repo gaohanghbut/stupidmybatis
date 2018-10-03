@@ -290,7 +290,7 @@ public @interface AutoMapping {
   final class Config implements MapperConfigHandler<AutoMapping> {
     @Override
     public void handleAnnotation(AutoMapping annotation, Class<?> type, Method method, MapperBuilderAssistant assistant) throws Throwable {
-      //通过assistant注册配置，不清楚可看看mybatis源码
+      //通过assistant注册配置，不清楚可看看mybatis源码，或者参考@TypeResultMap注解
     }
   }
 }
