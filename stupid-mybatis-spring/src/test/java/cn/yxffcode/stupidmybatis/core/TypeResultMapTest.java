@@ -37,8 +37,8 @@ public class TypeResultMapTest {
     System.out.println("users = " + userDao.selectById(0));
     System.out.println("users = " + userDao.selectById2(0));
     Map<String, Object> map = Maps.newHashMap();
-    map.put("id", 0);
-    map.put("name", "hello");
+    map.put("ID", 0);
+    map.put("NAME", "hello");
     System.out.println("users = " + userDao.mapToUser(map));
 
   }

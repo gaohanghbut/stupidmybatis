@@ -59,7 +59,7 @@ public @interface MapperMethod {
         List<Object> results = Lists.newArrayList();
         Iterable iterable = (Iterable) result;
         for (Object r : iterable) {
-          Object obj = methodHandle.invokeWithArguments(result);
+          Object obj = methodHandle.invokeWithArguments(r);
           if (obj != null) {
             results.add(obj);
           }

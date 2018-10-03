@@ -33,7 +33,7 @@ public interface UserDao {
   @Select({
       "select id, name from user"
   })
-  @ResultMap("userMapper")
+  @MapperMethod("mapToUser")
   List<User> selectAllMapperTest();
 
   @Select("select id, name from user where id = #{id}")
@@ -57,17 +57,13 @@ public interface UserDao {
   })
   Map mapMapper();
 
-  /**
-   * @param result
-   * @return
-   */
   default User mapToUser(Map<String, ?> result) {
     if (result == null) {
       return null;
     }
     User user = new User();
-    user.setId((Integer) result.get("id"));
-    user.setName((String) result.get("name"));
+    user.setId((Integer) result.get("ID"));
+    user.setName((String) result.get("NAME"));
     return user;
   }
 
