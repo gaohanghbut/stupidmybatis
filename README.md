@@ -175,7 +175,7 @@ public interface UserDao {
 
   @Select("select id, name from user where id = #{id}")
   @MapperMethod("userTransform")
-  User selectById2(@Param("id") int id);
+  User selectById(@Param("id") int id);
 
   default User mapToUser(Map<String, ?> result) {
     if (result == null) {
