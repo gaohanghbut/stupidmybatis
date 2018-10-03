@@ -9,6 +9,9 @@ import org.apache.ibatis.session.SqlSession;
 
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
@@ -31,6 +34,11 @@ public class StupidMapperProxy implements InvocationHandler, Serializable {
     if (method.getDeclaringClass() == Object.class) {
       return method.invoke(this, args);
     }
+
+    if (method.isDefault()) {
+      return invokeDefaultMethod(proxy, method, args);
+    }
+
     final Class<?> declaringInterface = findDeclaringInterface(proxy, method);
     final MapperMethod mapperMethod = new MapperMethod(declaringInterface, method, sqlSession);
     Object result = mapperMethod.execute(args);
@@ -46,6 +54,15 @@ public class StupidMapperProxy implements InvocationHandler, Serializable {
     result = postProcessResult(method, declaringInterface, proxy, result, annotations);
 
     return result;
+  }
+
+  private Object invokeDefaultMethod(Object proxy, Method method, Object[] args) throws Throwable {
+    Constructor<MethodHandles.Lookup> constructor = MethodHandles.Lookup.class.getDeclaredConstructor(Class.class, int.class);
+    constructor.setAccessible(true);
+    Class<?> declaringClass = method.getDeclaringClass();
+    int allModes = MethodHandles.Lookup.PUBLIC | MethodHandles.Lookup.PRIVATE | MethodHandles.Lookup.PROTECTED | MethodHandles.Lookup.PACKAGE;
+    MethodHandle methodHandle = constructor.newInstance(declaringClass, allModes).unreflectSpecial(method, declaringClass).bindTo(proxy);
+    return methodHandle.invokeWithArguments(args);
   }
 
   private Object postProcessResult(Method method, Class<?> declaringInterface, Object proxy, Object result, Annotation[] annotations) throws InstantiationException, IllegalAccessException {

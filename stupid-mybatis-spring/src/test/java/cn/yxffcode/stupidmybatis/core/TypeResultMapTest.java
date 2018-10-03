@@ -1,6 +1,7 @@
 package cn.yxffcode.stupidmybatis.core;
 
 import cn.yxffcode.stupidmybatis.core.cfg.StupidSqlSessionFactoryBuilder;
+import com.google.common.collect.Maps;
 import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -14,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author gaohang
@@ -38,6 +40,10 @@ public class TypeResultMapTest {
     System.out.println("outusers = " + userDao.selectAllMapperTest());
     System.out.println("users = " + userDao.selectById(0));
     System.out.println("users = " + userDao.selectById2(0));
+    Map<String, Object> map = Maps.newHashMap();
+    map.put("id", 0);
+    map.put("name", "hello");
+    System.out.println("users = " + userDao.mapToUser(map));
 
   }
 }
