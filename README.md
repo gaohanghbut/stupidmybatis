@@ -73,7 +73,7 @@ public interface UserDao {
   User userMapper();
 }
 ```
-TypeResultMap还可声明在Mapper接口的类型上，但必须要指定id和resultType，无法使用默认的：
+TypeResultMap还可声明在Mapper接口的类型上，但必须要指定id和resultType，无法使用这两个属性的默认值：
 ```java
 /**
  * 定义ResultMap， 必须指定id和resultType作为resultMapId和resultMap的返回类型
