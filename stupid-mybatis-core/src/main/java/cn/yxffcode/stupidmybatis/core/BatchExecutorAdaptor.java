@@ -30,10 +30,10 @@ final class BatchExecutorAdaptor extends BatchExecutor {
     if (parameter instanceof Map) {
       final Map<String, Object> paramMap = (Map<String, Object>) parameter;
       if (paramMap == null || paramMap.size() != 1) {
-        if (!paramMap.containsKey("param1")) {
+        if (!paramMap.containsKey("list")) {
           return super.update(ms, parameter);
         } else {
-          params = paramMap.get("param1");
+          params = paramMap.get("list");
         }
       } else {
         params = paramMap.values().iterator().next();

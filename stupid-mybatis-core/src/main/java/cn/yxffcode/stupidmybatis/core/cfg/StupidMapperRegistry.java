@@ -4,11 +4,11 @@ import cn.yxffcode.stupidmybatis.core.execution.StupidMapperProxy;
 import org.apache.ibatis.binding.BindingException;
 import org.apache.ibatis.binding.MapperRegistry;
 import org.apache.ibatis.builder.annotation.MapperAnnotationBuilder;
+import org.apache.ibatis.io.ResolverUtil;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.SqlSession;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author gaohang
@@ -21,6 +21,7 @@ public class StupidMapperRegistry extends MapperRegistry {
     super(config);
     this.config = config;
   }
+
   @Override
   public <T> T getMapper(Class<T> type, SqlSession sqlSession) {
     if (!knownMappers.contains(type))
@@ -33,12 +34,13 @@ public class StupidMapperRegistry extends MapperRegistry {
   }
 
   @Override
-  public boolean hasMapper(Class<?> type) {
-    return knownMappers.contains(type);
+  public <T> boolean hasMapper(Class<T> type) {
+    return this.knownMappers.contains(type);
   }
 
+
   @Override
-  public void addMapper(Class<?> type) {
+  public <T> void addMapper(Class<T> type) {
     if (type.isInterface()) {
       if (knownMappers.contains(type)) {
         throw new BindingException("Type " + type + " is already known to the MapperRegistry.");
@@ -60,4 +62,27 @@ public class StupidMapperRegistry extends MapperRegistry {
     }
   }
 
+  @Override
+  public Collection<Class<?>> getMappers() {
+    return Collections.unmodifiableCollection(knownMappers);
+  }
+
+  @Override
+  public void addMappers(String packageName, Class<?> superType) {
+    ResolverUtil<Class<?>> resolverUtil = new ResolverUtil();
+    resolverUtil.find(new ResolverUtil.IsA(superType), packageName);
+    Set<Class<? extends Class<?>>> mapperSet = resolverUtil.getClasses();
+    Iterator iterator = mapperSet.iterator();
+
+    while (iterator.hasNext()) {
+      Class<?> mapperClass = (Class) iterator.next();
+      this.addMapper(mapperClass);
+    }
+
+  }
+
+  @Override
+  public void addMappers(String packageName) {
+    this.addMappers(packageName, Object.class);
+  }
 }

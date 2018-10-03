@@ -39,8 +39,8 @@ public class StupidMapperProxy implements InvocationHandler, Serializable {
     }
 
     final Class<?> declaringInterface = findDeclaringInterface(proxy, method);
-    final MapperMethod mapperMethod = new MapperMethod(declaringInterface, method, sqlSession);
-    Object result = mapperMethod.execute(args);
+    final MapperMethod mapperMethod = new MapperMethod(declaringInterface, method, sqlSession.getConfiguration());
+    Object result = mapperMethod.execute(sqlSession, args);
     if (result == null && method.getReturnType().isPrimitive() && !method.getReturnType().equals(Void.TYPE)) {
       throw new BindingException("Mapper method '" + method.getName() + "' (" + method.getDeclaringClass() + ") attempted to return null from a method with a primitive return type (" + method.getReturnType() + ").");
     }

@@ -2,7 +2,6 @@ package cn.yxffcode.stupidmybatis.core.cfg;
 
 import cn.yxffcode.stupidmybatis.commons.Reflections;
 import cn.yxffcode.stupidmybatis.core.statement.TypeResultMap;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import org.apache.ibatis.annotations.*;
 import org.apache.ibatis.builder.MapperBuilderAssistant;
@@ -19,7 +18,6 @@ import java.lang.reflect.*;
 import java.util.*;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * @author gaohang
@@ -147,6 +145,7 @@ public abstract class MybatisConfigUtils {
     for (Result result : results) {
       ArrayList<ResultFlag> flags = new ArrayList<>();
       if (result.id()) flags.add(ResultFlag.ID);
+      Class<? extends TypeHandler<?>> typeHandlerClass = (Class<? extends TypeHandler<?>>) result.typeHandler();
       ResultMapping resultMapping = assistant.buildResultMapping(
           resultType,
           nullOrEmpty(result.property()),
@@ -157,7 +156,7 @@ public abstract class MybatisConfigUtils {
           null,
           null,
           null,
-          result.typeHandler() == UnknownTypeHandler.class ? null : result.typeHandler(),
+          typeHandlerClass == UnknownTypeHandler.class ? null : typeHandlerClass,
           flags);
       resultMappings.add(resultMapping);
     }
@@ -183,6 +182,7 @@ public abstract class MybatisConfigUtils {
       ArrayList<ResultFlag> flags = new ArrayList<>();
       flags.add(ResultFlag.CONSTRUCTOR);
       if (arg.id()) flags.add(ResultFlag.ID);
+      Class<? extends TypeHandler<?>> typeHandlerClass = (Class<? extends TypeHandler<?>>) arg.typeHandler();
       ResultMapping resultMapping = assistant.buildResultMapping(
           resultType,
           null,
@@ -193,7 +193,7 @@ public abstract class MybatisConfigUtils {
           nullOrEmpty(arg.resultMap()),
           null,
           null,
-          arg.typeHandler() == UnknownTypeHandler.class ? null : arg.typeHandler(),
+          typeHandlerClass == UnknownTypeHandler.class ? null : typeHandlerClass,
           flags);
       resultMappings.add(resultMapping);
     }
@@ -208,7 +208,8 @@ public abstract class MybatisConfigUtils {
       String column = discriminator.column();
       Class<?> javaType = discriminator.javaType() == void.class ? String.class : discriminator.javaType();
       JdbcType jdbcType = discriminator.jdbcType() == JdbcType.UNDEFINED ? null : discriminator.jdbcType();
-      Class<? extends TypeHandler<?>> typeHandler = discriminator.typeHandler() == UnknownTypeHandler.class ? null : discriminator.typeHandler();
+      Class<? extends TypeHandler<?>> typeHandler = discriminator.typeHandler() == UnknownTypeHandler.class ? null
+          : (Class<? extends TypeHandler<?>>) discriminator.typeHandler();
       Case[] cases = discriminator.cases();
       Map<String, String> discriminatorMap = new HashMap<>();
       for (Case c : cases) {

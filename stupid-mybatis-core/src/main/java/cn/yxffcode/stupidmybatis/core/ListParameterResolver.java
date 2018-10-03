@@ -2,6 +2,7 @@ package cn.yxffcode.stupidmybatis.core;
 
 import cn.yxffcode.stupidmybatis.commons.Reflections;
 import com.google.common.base.Throwables;
+import com.google.common.collect.Maps;
 import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.cache.CacheKey;
 import org.apache.ibatis.executor.Executor;
@@ -14,6 +15,7 @@ import org.apache.ibatis.plugin.Invocation;
 import org.apache.ibatis.plugin.Plugin;
 import org.apache.ibatis.plugin.Signature;
 import org.apache.ibatis.reflection.MetaObject;
+import org.apache.ibatis.reflection.SystemMetaObject;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
@@ -60,7 +62,7 @@ public class ListParameterResolver implements Interceptor {
     if (parameterMappings == null || parameterMappings.isEmpty() || parameter == null) {
       return invocation.proceed();
     }
-    MetaObject mo = MetaObject.forObject(parameter);
+    MetaObject mo = SystemMetaObject.forObject(parameter);
 
     //先记录集合参数的位置
     List<ListParamWrapper> paramPositions =
@@ -151,7 +153,7 @@ public class ListParameterResolver implements Interceptor {
       paramMap = (Map<String, Object>) parameter;
     }
     if (paramMap == null) {
-      paramMap = new MapperMethod.MapperParamMap<>();
+      paramMap = Maps.newHashMap();
       for (ParameterMapping pm : parameterMappings) {
         paramMap.put(pm.getProperty(), mo.getValue(pm.getProperty()));
       }
@@ -163,11 +165,11 @@ public class ListParameterResolver implements Interceptor {
       ListParamWrapper paramPosition, Object param, String newProperty) {
     try {
       ParameterMapping pm = paramPosition.parameterMapping;
-      MetaObject pmmo = MetaObject.forObject(pm);
+      MetaObject pmmo = SystemMetaObject.forObject(pm);
       Constructor<ParameterMapping> constructor = ParameterMapping.class.getDeclaredConstructor();
       constructor.setAccessible(true);
       ParameterMapping npm = constructor.newInstance();
-      MetaObject npmmo = MetaObject.forObject(npm);
+      MetaObject npmmo = SystemMetaObject.forObject(npm);
       //copy
       Configuration configuration = (Configuration) pmmo.getValue("configuration");
       npmmo.setValue("configuration", configuration);
