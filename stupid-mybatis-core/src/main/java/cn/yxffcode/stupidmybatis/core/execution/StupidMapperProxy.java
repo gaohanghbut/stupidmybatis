@@ -4,7 +4,6 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Maps;
 import org.apache.ibatis.binding.BindingException;
 import org.apache.ibatis.binding.MapperMethod;
-import org.apache.ibatis.binding.MapperProxy;
 import org.apache.ibatis.session.SqlSession;
 
 import java.io.Serializable;
@@ -51,6 +50,12 @@ public class StupidMapperProxy implements InvocationHandler, Serializable {
       return result;
     }
 
+    //先处理@MapperMethod
+    cn.yxffcode.stupidmybatis.core.statement.MapperMethod annotation = method.getAnnotation(cn.yxffcode.stupidmybatis.core.statement.MapperMethod.class);
+    if (annotation != null) {
+      result = handlePostProcessAnnotation(method, declaringInterface, proxy, result, annotation);
+    }
+
     result = postProcessResult(method, declaringInterface, proxy, result, annotations);
 
     return result;
@@ -67,16 +72,24 @@ public class StupidMapperProxy implements InvocationHandler, Serializable {
 
   private Object postProcessResult(Method method, Class<?> declaringInterface, Object proxy, Object result, Annotation[] annotations) throws InstantiationException, IllegalAccessException {
     for (Annotation annotation : annotations) {
-      MapperResultHandler mapperResultHandler = annotation.annotationType().getAnnotation(MapperResultHandler.class);
-      if (mapperResultHandler == null) {
+      if (annotation instanceof cn.yxffcode.stupidmybatis.core.statement.MapperMethod) {
         continue;
       }
-      MapperResultPostHandler mapperResultPostHandler = getMapperResultPostHandler(mapperResultHandler);
-      try {
-        result = mapperResultPostHandler.handle(declaringInterface, method, proxy, result);
-      } catch (Throwable throwable) {
-        throw Throwables.propagate(throwable);
-      }
+      result = handlePostProcessAnnotation(method, declaringInterface, proxy, result, annotation);
+    }
+    return result;
+  }
+
+  private Object handlePostProcessAnnotation(Method method, Class<?> declaringInterface, Object proxy, Object result, Annotation annotation) throws InstantiationException, IllegalAccessException {
+    MapperResultHandler mapperResultHandler = annotation.annotationType().getAnnotation(MapperResultHandler.class);
+    if (mapperResultHandler == null) {
+      return result;
+    }
+    MapperResultPostHandler mapperResultPostHandler = getMapperResultPostHandler(mapperResultHandler);
+    try {
+      result = mapperResultPostHandler.handle(declaringInterface, method, proxy, result);
+    } catch (Throwable throwable) {
+      throw Throwables.propagate(throwable);
     }
     return result;
   }
