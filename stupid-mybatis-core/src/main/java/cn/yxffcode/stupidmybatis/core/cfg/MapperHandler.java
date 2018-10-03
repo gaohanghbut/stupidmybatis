@@ -3,6 +3,8 @@ package cn.yxffcode.stupidmybatis.core.cfg;
 import java.lang.annotation.*;
 
 /**
+ * 配置解析接口
+ *
  * @author gaohang
  */
 @Target(ElementType.TYPE)
@@ -13,6 +15,7 @@ public @interface MapperHandler {
 
   /**
    * 在mapper接口解析前还是解析后调用
+   *
    * @return
    */
   Order order() default Order.BEFORE_CONFIG_PARSE;
