@@ -273,7 +273,7 @@ public interface UserDao {
 }
 
 ```
-### 对注解配置的扩展
+### 通过注解对配置的扩展
 可自定义注解用于对mybatis进行配置，注解中需要通过@MapperConfHandler元注解指定
 MapperConfigHandler接口的实现，例如：
 
