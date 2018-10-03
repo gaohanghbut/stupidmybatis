@@ -1,8 +1,6 @@
 package cn.yxffcode.stupidmybatis.core;
 
-import cn.yxffcode.stupidmybatis.core.cfg.StupidSqlSessionFactoryBuilder;
 import com.google.common.collect.Maps;
-import org.apache.ibatis.io.Resources;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.junit.Test;
@@ -12,9 +10,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import javax.annotation.Resource;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 
 /**

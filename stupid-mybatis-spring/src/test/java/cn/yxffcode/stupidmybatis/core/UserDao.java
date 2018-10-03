@@ -10,6 +10,10 @@ import java.util.Map;
 /**
  * @author gaohang on 16/7/29.
  */
+@TypeResultMap(id = "userMapper2", resultType = User.class, value = {
+    @Result(property = "id", column = "id"),
+    @Result(property = "name", column = "name")
+})
 public interface UserDao {
 
   @Insert({
@@ -33,7 +37,7 @@ public interface UserDao {
   List<User> selectAllMapperTest();
 
   @Select("select id, name from user where id = #{id}")
-  @ResultMap("userMapper")
+  @ResultMap("userMapper2")
   User selectById(@Param("id") int id);
 
   @Select("select id, name from user where id = #{id}")

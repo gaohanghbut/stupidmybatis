@@ -2,6 +2,7 @@ package cn.yxffcode.stupidmybatis.core.cfg;
 
 import cn.yxffcode.stupidmybatis.commons.Reflections;
 import cn.yxffcode.stupidmybatis.core.statement.TypeResultMap;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import org.apache.ibatis.annotations.*;
 import org.apache.ibatis.builder.MapperBuilderAssistant;
@@ -17,6 +18,9 @@ import org.apache.ibatis.type.UnknownTypeHandler;
 import java.lang.reflect.*;
 import java.util.*;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /**
  * @author gaohang
  */
@@ -26,14 +30,18 @@ public abstract class MybatisConfigParser {
   }
 
   public static void parseResultsAndConstructorArgs(Class<?> type, Method method, MapperBuilderAssistant assistant) {
-    TypeResultMap results = method.getAnnotation(TypeResultMap.class);
+    TypeResultMap results = method == null ? type.getAnnotation(TypeResultMap.class) : method.getAnnotation(TypeResultMap.class);
     if (results == null) {
       return;
     }
-    Class<?> returnType = getReturnType(method);
+    if (method == null) {
+      checkArgument(!Strings.isNullOrEmpty(results.id()));
+      checkArgument(results.resultType() != Object.class);
+    }
+    Class<?> returnType = method == null ? results.resultType() : getReturnType(method);
     if (returnType != null) {
-      ConstructorArgs args = method.getAnnotation(ConstructorArgs.class);
-      TypeDiscriminator typeDiscriminator = method.getAnnotation(TypeDiscriminator.class);
+      ConstructorArgs args = method == null ? null : method.getAnnotation(ConstructorArgs.class);
+      TypeDiscriminator typeDiscriminator = method == null ? null : method.getAnnotation(TypeDiscriminator.class);
       String resultMapId = Strings.isNullOrEmpty(results.id()) ? method.getName() : results.id();
       applyResultMap(resultMapId, returnType, type, assistant, argsIf(args), resultsIf(results), typeDiscriminator);
     }

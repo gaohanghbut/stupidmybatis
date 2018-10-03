@@ -12,11 +12,16 @@ import java.lang.reflect.Method;
 /**
  * @author gaohang
  */
-@Target(ElementType.METHOD)
+@Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 @MapperHandler(TypeResultMap.TypeResultMapHandler.class)
 public @interface TypeResultMap {
+
+  /**
+   * 结果类型
+   */
+  Class<?> resultType() default Object.class;
 
   /**
    * @return resultMap id

@@ -43,13 +43,18 @@ public class StupidAnnotationParser extends MapperAnnotationBuilder {
       if (annotations == null || annotations.length == 0) {
         continue;
       }
-      for (Annotation annotation : annotations) {
-        MapperHandler mapperHandler = annotation.annotationType().getAnnotation(MapperHandler.class);
-        if (mapperHandler == null || mapperHandler.order() != order) {
-          continue;
-        }
-        parseAnnotation(method, mapperHandler, annotation);
+      parseAnnotations(order, method, annotations);
+    }
+    parseAnnotations(order, null, type.getAnnotations());
+  }
+
+  private void parseAnnotations(MapperHandler.Order order, Method method, Annotation[] annotations) {
+    for (Annotation annotation : annotations) {
+      MapperHandler mapperHandler = annotation.annotationType().getAnnotation(MapperHandler.class);
+      if (mapperHandler == null || mapperHandler.order() != order) {
+        continue;
       }
+      parseAnnotation(method, mapperHandler, annotation);
     }
   }
 
