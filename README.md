@@ -220,8 +220,81 @@ map.put("id", 0);
 map.put("name", "hello");
 User user = userDao.mapToUser(map);
 ```
+## 注解扩展
+### 对返回结果进行特定的加工
+除了上面@MapperMethod能调用默认方法处理返回结果外，还可通过自定义注解的方式处理返回结果，
+自定义注解需要通过@MapperResultHandler元注解提供MapperResultPostHandler的实现类，
+例如实现一个@PostProcessResult用于打印日志：
+```java
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+@Inherited
+@MapperResultHandler(PostProcessResult.PostProcesser.class)//这里指定MapperResultPostHandler
+public @interface PostProcessResult {
 
+  /**
+   * 处理返回结果的类
+   */
+  final class PostProcesser implements MapperResultPostHandler {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(PostProcessResult.class);
+
+    @Override
+    public Object handle(Class<?> type, Method method, Object proxy, Object result) throws Throwable {
+      LOGGER.info("{}.{} result is {}", type.getName(), method.getName(), result);
+      return result;
+    }
+  }
+}
+```
+可在DAO上使用@PostProcessResult
+```java
+@TypeResultMap(id = "userMapper2", resultType = User.class, value = {
+    @Result(property = "id", column = "id"),
+    @Result(property = "name", column = "name")
+})
+public interface UserDao {
+
+  @Select("select id, name from user where id = #{id}")
+  @MapperMethod("mapToUser")
+  @PostProcessResult//此处可使用自定义的结果处理注解
+  User selectById2(@Param("id") int id);
+
+  default User mapToUser(Map<String, ?> result) {
+    if (result == null) {
+      return null;
+    }
+    User user = new User();
+    user.setId((Integer) result.get("ID"));
+    user.setName((String) result.get("NAME"));
+    return user;
+  }
+
+}
+
+```
+### 对注解配置的扩展
+可自定义注解用于对mybatis进行配置，注解中需要通过@MapperConfHandler元注解指定
+MapperConfigHandler接口的实现，例如：
+
+```java
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+@Inherited
+@MapperConfHandler(AutoMapping.Config.class)
+public @interface AutoMapping {
+
+  /**
+   * 处理返回结果的类
+   */
+  final class Config implements MapperConfigHandler<AutoMapping> {
+    @Override
+    public void handleAnnotation(AutoMapping annotation, Class<?> type, Method method, MapperBuilderAssistant assistant) throws Throwable {
+      //通过assistant注册配置，不清楚可看看mybatis源码
+    }
+  }
+}
+```
 ## Mybatis批量插件
 mybatis已有的批量更新比较麻烦，要么写动态sql，要么利用BatchExecutor的SqlSession. 
 在工程中,更加希望DAO中的方法需要批量的时候用批量,不需要批量的时候不用批量. 有两种方式
