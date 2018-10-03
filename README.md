@@ -63,13 +63,36 @@ public interface UserDao {
   User selectById(@Param("id") int id);
 
   /**
-   * 定义ResultMap 
+   * 定义ResultMap， 可指定id和resultType作为resultMapId和resultMap的返回类型, 
+   * 默认的resultMapId为方法名，默认的返回类型是方法的返回类型或者方法的返回类型中的元素
    */
   @TypeResultMap({
       @Result(property = "id", column = "idFactory"),
       @Result(property = "name", column = "name")
   })
   User userMapper();
+}
+```
+TypeResultMap还可声明在Mapper接口的类型上，但必须要指定id和resultType，无法使用默认的：
+```java
+/**
+ * 定义ResultMap， 必须指定id和resultType作为resultMapId和resultMap的返回类型
+ */
+@TypeResultMap(id = "userMapper", resultType = User.class, value = {
+  @Result(property = "id", column = "idFactory"),
+  @Result(property = "name", column = "name")
+})
+public interface UserDao {
+
+  @Select({
+      "select id, name from user"
+  })
+  @ResultMap("userMapper")
+  List<User> selectAll();
+
+  @Select("select id, name from user where id = #{id}")
+  @ResultMap("userMapper")
+  User selectById(@Param("id") int id);
 }
 ```
 
