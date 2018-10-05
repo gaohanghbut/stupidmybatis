@@ -1,5 +1,5 @@
 # StupidMybatis
-StupidMybatis是一个mybatis扩展框架，提供了可扩展的mybatis注解增强以及通过注解实现的核心能力的增强，用于简化使用mybatis的过程中的一些痛点。
+StupidMybatis是一个mybatis扩展框架，提供了可扩展的mybatis注解增强以及通过注解实现的核心能力的增强，用于简化mybatis映射接口的使用以及基于mybatis的DAO开发。
 
 ## 基础架构 
 ![StupidMybatis](img/arch.png)
