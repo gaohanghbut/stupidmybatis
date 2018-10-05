@@ -37,7 +37,7 @@ public class MyApplication{
   }
 }
 ```
-
+### 不使用Spring
 如果不使用spring，则需要将SqlSessionFactoryBuilder替换成StupidSqlSessionFactoryBuilder,例如：
 ```java
 String resource = "mybatis-config.xml";
