@@ -357,7 +357,7 @@ public @interface Limit {
         @Override
         public BoundSql getBoundSql(Object parameterObject) {
           BoundSql boundSql = delegate.getBoundSql(parameterObject);
-          return new BoundSql(configuration, boundSql.getSql() + "limit " + limit.value(), boundSql.getParameterMappings(), boundSql.getParameterObject());
+          return new BoundSql(configuration, boundSql.getSql() + " limit " + limit.value(), boundSql.getParameterMappings(), boundSql.getParameterObject());
         }
       });
     }
@@ -381,6 +381,26 @@ public interface UserDao {
 }
 
 ```
+
+## ORM
+StupidMybatis提供了简单的ORM功能，ORM功能提供了默认使用的ResultMap，所有没有标记@Result且没标记@ResultMap
+的方法，会使用ORM中提供的ResultMap，使用方式：
+```java
+@TypeResultMap(id = "userResultMap", resultType = User.class, value = {
+    @Result(property = "id", column = "id"),
+    @Result(property = "name", column = "name_t")
+})
+//配置ORM信息
+@ORM(tableName = "user", resultMap = "userResultMap", primaryKey = @PrimaryKey(keyColumns = "id", autoGenerate = false))
+public interface UserDao extends BaseDataAccess<User, Integer> {
+
+  @Select("select id, name_t from user")
+  List<User> selectAll();//没有指定@Result或者@ResultMap，会使用@ORM中指定的resultMap
+
+}
+
+```
+
 ## Mybatis批量插件
 mybatis已有的批量更新比较麻烦，要么写动态sql，要么利用BatchExecutor的SqlSession. 
 在工程中,更加希望DAO中的方法需要批量的时候用批量,不需要批量的时候不用批量. 有两种方式
