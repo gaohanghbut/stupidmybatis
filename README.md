@@ -234,6 +234,53 @@ map.put("id", 0);
 map.put("name", "hello");
 User user = userDao.mapToUser(map);
 ```
+
+## 通过主键分页
+分页查询通常需要使用offset和limit两个参数，当表中的数据量非常大时，offset会有比较差的性能，
+一种优化的分页方式是维护一个id，每次查询时作为参数传入，例如：
+```java
+@TypeResultMap(id = "userResultMap", resultType = User.class, value = {
+    @Result(property = "id", column = "id"),
+    @Result(property = "name", column = "name")
+})
+@Mapper
+public interface UserDao {
+
+  @Select("select id, name from user where id > #{lastMaxId} order by id asc limit #{pageSize}")
+  @ResultMap("userResultMap")
+  List<User> select(@Param("lastMaxId") int lastMaxId, @Param("pageSize") int pageSize);
+}
+```
+在select方法查询到结果后，需要在service中取出最大的id，作为查询下一页时的入参，例如：
+```java
+public ServiceResult doService(int lastMaxId, int pageSize) {
+  List<User> users = userDao.select(lastMaxId, pageSize);
+  
+  if (CollectionUtils.isEmpty(users)) {
+    return emptyResult();//表示空结果 
+  }
+  User user = users.get(users.size() - 1);//获取最后一个id
+  int maxId = user.getId();
+  return new ServiceResult(maxId, users);
+}
+```
+
+整个过程比较繁琐，有不少用于处理非业务相关的代码，StupidMybatis提供了OrderPageList和OrderPagination来解决这种分页查询，例如：
+```java
+@Mapper
+public interface UserDao {
+
+  @Select("select id, name from user where id > #{lastMaxId} order by id asc limit #{pageSize}")
+  @Results({
+      @Result(property = "id", column = "id"),
+      @Result(property = "name", column = "name")
+  })//这里也可以使用@ResultMap
+  @OrderPagination("id")//指定哪个属性表示的是主键的值，如果主键有多个字段，暂时只支持多个字段通过一个类组合成属性的情况
+  OrderPageList<User, Integer> select(@Param("lastMaxId") int lastMaxId, @Param("pageSize") int pageSize);
+}
+```
+OrderPageList中会包含查询结果，通过OrderPageList.getLastId()可获取最后一个元素的id
+
 ## 注解扩展
 ### 对返回结果进行特定的加工
 除了上面@MapperMethod能调用默认方法处理返回结果外，还可通过自定义注解的方式处理返回结果，
