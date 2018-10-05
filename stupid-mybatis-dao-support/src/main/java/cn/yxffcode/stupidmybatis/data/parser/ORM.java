@@ -81,11 +81,15 @@ public @interface ORM {
       if (!assistant.getConfiguration().hasResultMap(autoMapResultMapName)) {
         return;
       }
+      ResultMap autoMapResultMap = assistant.getConfiguration().getResultMap(autoMapResultMapName);
+      //有映射，则不做默认映射的替换
+      if (!autoMapResultMap.getMappedColumns().isEmpty()) {
+        return;
+      }
 
       ResultMap actualResultMap = assistant.getConfiguration().getResultMap(ormResultMap);
       TableMetaCache.getInstance().parse(orm, actualResultMap, type);
 
-      ResultMap autoMapResultMap = assistant.getConfiguration().getResultMap(autoMapResultMapName);
 
       List<ResultMap> resultMaps = mappedStatement.getResultMaps();
 
