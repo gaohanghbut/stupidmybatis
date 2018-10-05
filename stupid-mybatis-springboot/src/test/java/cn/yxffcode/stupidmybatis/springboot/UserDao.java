@@ -1,4 +1,4 @@
-package cn.yxffcode.stupidmybatis.core;
+package cn.yxffcode.stupidmybatis.springboot;
 
 import cn.yxffcode.stupidmybatis.core.statement.MapperMethod;
 import cn.yxffcode.stupidmybatis.core.statement.TypeResultMap;
@@ -14,6 +14,7 @@ import java.util.Map;
     @Result(property = "id", column = "id"),
     @Result(property = "name", column = "name")
 })
+@Mapper
 public interface UserDao {
 
   @Insert("insert into user (id, name) values (#{id}, #{name})")
@@ -49,7 +50,6 @@ public interface UserDao {
   @Select("select id, name from user where id = #{id}")
   @ResultMap("userMapper")
   @MapperMethod("userTransform")
-  @PostProcessResult
   User selectById2(@Param("id") int id);
 
   @TypeResultMap({

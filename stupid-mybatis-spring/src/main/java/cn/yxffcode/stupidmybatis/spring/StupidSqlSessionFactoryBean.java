@@ -7,6 +7,7 @@ import cn.yxffcode.stupidmybatis.core.cfg.StupidXMLConfigBuilder;
 import org.apache.ibatis.builder.xml.XMLConfigBuilder;
 import org.apache.ibatis.builder.xml.XMLMapperBuilder;
 import org.apache.ibatis.executor.ErrorContext;
+import org.apache.ibatis.io.VFS;
 import org.apache.ibatis.logging.Log;
 import org.apache.ibatis.logging.LogFactory;
 import org.apache.ibatis.mapping.DatabaseIdProvider;
@@ -77,6 +78,8 @@ StupidSqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>, Initializ
   private String typeAliasesPackage;
 
   private DatabaseIdProvider databaseIdProvider = new DefaultDatabaseIdProvider();
+  private Configuration configuration;
+  private Class<? extends VFS> vfs;
 
   /**
    * Sets the DatabaseIdProvider.
@@ -278,7 +281,15 @@ StupidSqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>, Initializ
     Configuration configuration;
 
     XMLConfigBuilder xmlConfigBuilder = null;
-    if (this.configLocation != null) {
+    if (this.configuration != null) {
+      configuration = this.configuration;
+      if (configuration.getVariables() == null) {
+        configuration.setVariables(this.configurationProperties);
+      } else if (this.configurationProperties != null) {
+        configuration.getVariables().putAll(this.configurationProperties);
+      }
+      Reflections.setField(configuration, "mapperRegistry", new StupidMapperRegistry(configuration));
+    } else if (this.configLocation != null) {
       xmlConfigBuilder = new StupidXMLConfigBuilder(this.configLocation.getInputStream(), null, this.configurationProperties);
       configuration = xmlConfigBuilder.getConfiguration();
     } else {
@@ -317,6 +328,10 @@ StupidSqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>, Initializ
           this.logger.debug("Registered plugin: '" + plugin + "'");
         }
       }
+    }
+
+    if (this.vfs != null) {
+      configuration.setVfsImpl(this.vfs);
     }
 
     if (hasLength(this.typeHandlersPackage)) {
@@ -430,5 +445,13 @@ StupidSqlSessionFactoryBean implements FactoryBean<SqlSessionFactory>, Initializ
       // fail-fast -> check all statements are completed
       this.sqlSessionFactory.getConfiguration().getMappedStatementNames();
     }
+  }
+
+  public void setConfiguration(Configuration configuration) {
+    this.configuration = configuration;
+  }
+
+  public void setVfs(Class<? extends VFS> vfs) {
+    this.vfs = vfs;
   }
 }

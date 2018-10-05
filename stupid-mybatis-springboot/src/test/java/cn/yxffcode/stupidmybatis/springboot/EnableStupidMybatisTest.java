@@ -1,32 +1,32 @@
-package cn.yxffcode.stupidmybatis.core;
+package cn.yxffcode.stupidmybatis.springboot;
 
 import com.google.common.collect.Maps;
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.junit4.SpringRunner;
 
-import javax.annotation.Resource;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
 
 /**
  * @author gaohang
  */
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:spring.xml")
-public class TypeResultMapTest {
+@SpringBootTest
+@RunWith(SpringRunner.class)
+@MapperScan(basePackages = "cn.yxffcode.stupidmybatis.springboot")
+@SpringBootApplication
+@EnableStupidMybatis
+public class EnableStupidMybatisTest {
 
-  @Resource
-  private SqlSessionFactory sqlSessionFactory;
+  @Autowired
+  private UserDao userDao;
 
   @Test
-  public void test() throws IOException {
-    SqlSession sqlSession = sqlSessionFactory.openSession();
-    UserDao userDao = sqlSession.getMapper(UserDao.class);
+  public void test() {
 
     User user = new User();
     user.setId(0);
