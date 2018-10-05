@@ -403,7 +403,7 @@ public interface UserDao {
 
 ## DAO的通用方法
 DAO中会有一些共有的方法（insert, batchInsert, update, batchUpdate，selectById等，详情见BaseDataAccess接口）,
-StupidMybatis通过@ORM的配置，提供了BaseDataAccess接口，使得映射接口中不需要再重复的定义一些基础的方法，使用方式：
+StupidMybatis通过@ORM的配置，提供了BaseDataAccess作为父接口，使得映射接口中不需要再重复的定义一些基础的方法，使用方式：
 ```java
 @TypeResultMap(id = "userResultMap", resultType = User.class, value = {
     @Result(property = "id", column = "id"),
@@ -411,6 +411,7 @@ StupidMybatis通过@ORM的配置，提供了BaseDataAccess接口，使得映射�
 })
 //这里一定要配置@ORM，指定表名，默认的resultMap和主键
 @ORM(tableName = "user", resultMap = "userResultMap", primaryKey = @PrimaryKey(keyColumns = "id", autoGenerate = false))
+//需要继承BaseDataAccess<DO, ID>接口
 public interface UserDao extends BaseDataAccess<User, Integer> {
 
   @Select("select id, name_t from user")
