@@ -20,12 +20,12 @@ public @interface PostProcessResult {
   /**
    * 处理返回结果的类
    */
-  final class PostProcesser implements MapperResultPostHandler {
+  final class PostProcesser implements MapperResultPostHandler<PostProcessResult> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PostProcessResult.class);
 
     @Override
-    public Object handle(Class<?> type, Method method, Object proxy, Object result) throws Throwable {
+    public Object handle(PostProcessResult postProcessResult, Class<?> type, Method method, Object proxy, Object result) throws Throwable {
       LOGGER.info("{}.{} result is {}", type.getName(), method.getName(), result);
       return result;
     }

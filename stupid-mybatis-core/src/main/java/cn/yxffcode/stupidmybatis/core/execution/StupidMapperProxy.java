@@ -87,7 +87,7 @@ public class StupidMapperProxy implements InvocationHandler, Serializable {
     }
     MapperResultPostHandler mapperResultPostHandler = getMapperResultPostHandler(mapperResultHandler);
     try {
-      result = mapperResultPostHandler.handle(declaringInterface, method, proxy, result);
+      result = mapperResultPostHandler.handle(annotation, declaringInterface, method, proxy, result);
     } catch (Throwable throwable) {
       throw Throwables.propagate(throwable);
     }

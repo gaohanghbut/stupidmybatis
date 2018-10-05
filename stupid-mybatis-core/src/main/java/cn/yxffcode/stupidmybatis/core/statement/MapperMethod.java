@@ -1,7 +1,7 @@
 package cn.yxffcode.stupidmybatis.core.statement;
 
-import cn.yxffcode.stupidmybatis.core.cfg.MapperConfigHandler;
 import cn.yxffcode.stupidmybatis.core.cfg.MapperConfHandler;
+import cn.yxffcode.stupidmybatis.core.cfg.MapperConfigHandler;
 import cn.yxffcode.stupidmybatis.core.cfg.MybatisConfigUtils;
 import cn.yxffcode.stupidmybatis.core.execution.MapperResultHandler;
 import cn.yxffcode.stupidmybatis.core.execution.MapperResultPostHandler;
@@ -30,7 +30,7 @@ public @interface MapperMethod {
    */
   String value();
 
-  final class MapperMethodHandler implements MapperConfigHandler<MapperMethod>, MapperResultPostHandler {
+  final class MapperMethodHandler implements MapperConfigHandler<MapperMethod>, MapperResultPostHandler<MapperMethod> {
 
     @Override
     public void handleAnnotation(MapperMethod annotation, Class<?> type, Method method, MapperBuilderAssistant assistant) throws Throwable {
@@ -39,8 +39,7 @@ public @interface MapperMethod {
     }
 
     @Override
-    public Object handle(Class<?> type, Method mtd, Object proxy, Object result) throws Throwable {
-      MapperMethod mapperMethod = mtd.getAnnotation(MapperMethod.class);
+    public Object handle(MapperMethod mapperMethod, Class<?> type, Method mtd, Object proxy, Object result) throws Throwable {
       if (mapperMethod == null) {
         return result;
       }
