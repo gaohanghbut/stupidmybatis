@@ -392,11 +392,65 @@ StupidMybatis提供了简单的ORM功能，ORM功能提供了默认使用的Resu
 })
 //配置ORM信息
 @ORM(tableName = "user", resultMap = "userResultMap", primaryKey = @PrimaryKey(keyColumns = "id", autoGenerate = false))
-public interface UserDao extends BaseDataAccess<User, Integer> {
+public interface UserDao {
 
   @Select("select id, name_t from user")
   List<User> selectAll();//没有指定@Result或者@ResultMap，会使用@ORM中指定的resultMap
 
+}
+
+```
+
+## DAO的通用方法
+DAO中会有一些共有的方法（insert, batchInsert, update, batchUpdate，selectById等，详情见BaseDataAccess接口）,
+StupidMybatis通过@ORM的配置，提供了BaseDataAccess接口，使得映射接口中不需要再重复的定义一些基础的方法，使用方式：
+```java
+@TypeResultMap(id = "userResultMap", resultType = User.class, value = {
+    @Result(property = "id", column = "id"),
+    @Result(property = "name", column = "name_t")
+})
+//这里一定要配置@ORM，指定表名，默认的resultMap和主键
+@ORM(tableName = "user", resultMap = "userResultMap", primaryKey = @PrimaryKey(keyColumns = "id", autoGenerate = false))
+public interface UserDao extends BaseDataAccess<User, Integer> {
+
+  @Select("select id, name_t from user")
+  List<User> selectAll();
+
+}
+```
+
+UserDao中可使用BaseDataAccess中的方法，不需要做其它编码，例如（spring的方式，非spring-boot）：
+```java
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("classpath:spring.xml")
+public class ORMTest {
+
+  @Resource
+  private SqlSessionFactory sqlSessionFactory;
+
+  @Test
+  public void test() throws IOException {
+    SqlSession sqlSession = sqlSessionFactory.openSession();
+    UserDao userDao = sqlSession.getMapper(UserDao.class);
+
+    User user = new User();
+    user.setId(0);
+    user.setName("test");
+    userDao.batchInsert(Collections.singletonList(user));
+    user.setId(1);
+    userDao.insert(user);
+
+    System.out.println("userDao.selectAll() = " + userDao.selectAll());//UserDao中的方法
+    System.out.println("userDao.selectById() = " + userDao.selectById(0));//BaseDataAccess中的通用方法
+
+    user.setName("joh");
+    System.out.println("userDao.update() = " + userDao.update(user));
+    System.out.println("userDao.selectAll() = " + userDao.selectAll());
+    user.setName("john");
+    System.out.println("userDao.batchUpdate() = " + userDao.batchUpdate(Collections.singletonList(user)));
+    System.out.println("userDao.selectAll() = " + userDao.selectAll());
+
+  }
 }
 
 ```

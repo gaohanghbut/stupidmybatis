@@ -16,7 +16,7 @@ import java.util.Collections;
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:spring.xml")
-public class TypeResultMapTest {
+public class ORMTest {
 
   @Resource
   private SqlSessionFactory sqlSessionFactory;
