@@ -108,7 +108,7 @@ public abstract class MybatisConfigUtils {
     return returnType;
   }
 
-  private static String generateResultMapName(Class<?> type, Method method) {
+  public static String generateResultMapName(Class<?> type, Method method) {
     StringBuilder suffix = new StringBuilder();
     for (Class<?> c : method.getParameterTypes()) {
       suffix.append("-");
