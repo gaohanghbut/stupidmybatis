@@ -18,7 +18,7 @@ public @interface MapperConfHandler {
    *
    * @return
    */
-  Order order() default Order.BEFORE_CONFIG_PARSE;
+  Order order() default Order.AFTER_CONFIG_PARSE;
 
   enum Order {
     BEFORE_CONFIG_PARSE,

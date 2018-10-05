@@ -1,7 +1,7 @@
 package cn.yxffcode.stupidmybatis.core.statement;
 
-import cn.yxffcode.stupidmybatis.core.cfg.MapperConfigHandler;
 import cn.yxffcode.stupidmybatis.core.cfg.MapperConfHandler;
+import cn.yxffcode.stupidmybatis.core.cfg.MapperConfigHandler;
 import cn.yxffcode.stupidmybatis.core.cfg.MybatisConfigUtils;
 import org.apache.ibatis.annotations.Result;
 import org.apache.ibatis.builder.MapperBuilderAssistant;
@@ -15,7 +15,7 @@ import java.lang.reflect.Method;
 @Target({ElementType.METHOD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
-@MapperConfHandler(TypeResultMap.TypeResultMapHandler.class)
+@MapperConfHandler(value = TypeResultMap.TypeResultMapHandler.class, order = MapperConfHandler.Order.BEFORE_CONFIG_PARSE)
 public @interface TypeResultMap {
 
   /**

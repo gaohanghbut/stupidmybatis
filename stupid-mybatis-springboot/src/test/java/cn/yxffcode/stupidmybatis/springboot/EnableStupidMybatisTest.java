@@ -34,6 +34,7 @@ public class EnableStupidMybatisTest {
     userDao.batchInsert(Collections.singletonList(user));
 
     System.out.println("outusers = " + userDao.selectAllMapperTest());
+    System.out.println("users = " + userDao.selectAll());
     System.out.println("users = " + userDao.selectById(0));
     System.out.println("users = " + userDao.selectById2(0));
     Map<String, Object> map = Maps.newHashMap();

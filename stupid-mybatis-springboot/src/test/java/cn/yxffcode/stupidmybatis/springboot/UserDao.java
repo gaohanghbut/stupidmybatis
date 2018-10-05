@@ -1,5 +1,7 @@
 package cn.yxffcode.stupidmybatis.springboot;
 
+import cn.yxffcode.stupidmybatis.core.execution.OrderPageList;
+import cn.yxffcode.stupidmybatis.core.execution.OrderPagination;
 import cn.yxffcode.stupidmybatis.core.statement.MapperMethod;
 import cn.yxffcode.stupidmybatis.core.statement.TypeResultMap;
 import org.apache.ibatis.annotations.*;
@@ -25,7 +27,8 @@ public interface UserDao {
       @Result(property = "id", column = "id"),
       @Result(property = "name", column = "name")
   })
-  List<User> selectAll();
+  @OrderPagination("id")
+  OrderPageList<User, Integer> selectAll();
 
   @Select({
       "<script>",
