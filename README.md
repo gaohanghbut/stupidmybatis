@@ -1,12 +1,26 @@
 # StupidMybatis
 StupidMybatis是一个mybatis扩展框架，用于简化使用mybatis的过程中的一些痛点，详细见下文。
 
+## 使用spring
 使用StupidMybatis，先将spring中的SqlSessionFactoryBean替换成StupidSqlSessionFactoryBean,使用方式与SqlSessionFactory相同，例如：
 ```xml
   <bean id = "sqlSession" class="cn.yxffcode.stupidmybatis.spring.StupidSqlSessionFactoryBean">
     <property name="dataSource" ref="dataSource"/>
     <property name="configLocation" value="classpath:mybatis-config.xml"/>
   </bean>
+```
+
+## 使用spring-boot
+如果使用spring-boot，需要额外添加一个注解@EnableStupidMybatis，例如：
+```java
+@SpringBootApplication
+@EnableStupidMybatis
+@MapperScan(basePackages = "xxx")//扫描标记了@Mapper的接口
+public class MyApplication{
+  public static void main(String[] args){
+    SpringApplcation.run(MyApplication.class);
+  }
+}
 ```
 
 如果不使用spring，则需要将SqlSessionFactoryBuilder替换成StupidSqlSessionFactoryBuilder,例如：
@@ -336,6 +350,7 @@ executor,而是使用新的executor. 第一种方式相对稍复杂一点,第二
 ```xml
 <plugin interceptor="cn.yxffcode.stupidmybatis.core.BatchExecutorInterceptor"></plugin>
 ```
+如果使用了为spring-boot提供的@EnableStupidMybatis注解，则不需要再配置此插件，@EnableStupidMybatis注解会自动配置
 2.DAO如果需要使用batch则,参数需要是Iterable或者数组,sql的statement id(不包含命名空间)
 要以batch开头,如果是映射接口,则方法名以batch开头:
 ```java
@@ -360,6 +375,8 @@ public interface UserDao {
 ```xml
 <plugin interceptor="cn.yxffcode.stupidmybatis.core.ListParameterResolver"></plugin>
 ```
+如果使用了为spring-boot提供的@EnableStupidMybatis注解，则不需要再配置此插件，@EnableStupidMybatis注解会自动配置,
+
 DAO上的in查询示例：
 ```java
 public interface UserDao {
@@ -382,6 +399,7 @@ mybatis dao自动分页查询。如果在系统启动时需要将各种不同的
 ```xml
 <plugin interceptor="cn.yxffcode.stupidmybatis.core.PageQueryAllInterceptor"></plugin>
 ```
+如果使用了为spring-boot提供的@EnableStupidMybatis注解，则不需要再配置此插件，@EnableStupidMybatis注解会自动配置
 2. 对于DAO,需要使用此插件的查询方法上加上注解@Paged:
 ```java
 @Select({
@@ -408,3 +426,4 @@ UserDao userDao = PagedQueryDaoProxy.wrapNotNull(sqlSession.getMapper(UserDao.cl
     <constructor-arg value="org.springframework.stereotype.Repository"/>
 </bean>
 ```
+如果使用了为spring-boot提供的@EnableStupidMybatis注解，则不需要再配置此插件，@EnableStupidMybatis注解会自动配置
