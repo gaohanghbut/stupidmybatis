@@ -19,6 +19,7 @@
     <module>stupid-mybatis-spring</module>
     <module>stupid-mybatis-commons</module>
     <module>stupid-mybatis-springboot</module>
+    <module>stupid-mybatis-dao-support</module>
   </modules>
   <packaging>pom</packaging>
 
