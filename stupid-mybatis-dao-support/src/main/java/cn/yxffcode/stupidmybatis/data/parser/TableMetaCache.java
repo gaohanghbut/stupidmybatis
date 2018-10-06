@@ -62,6 +62,10 @@ public class TableMetaCache {
       this.mappings = mappings;
     }
 
+    public String getColumn(String property) {
+      return mappings.get(property);
+    }
+
     public ORM getOrm() {
       return orm;
     }

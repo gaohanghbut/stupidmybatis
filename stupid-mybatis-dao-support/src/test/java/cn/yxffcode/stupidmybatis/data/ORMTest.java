@@ -43,6 +43,12 @@ public class ORMTest {
 //    System.out.println("userDao.update() = " + userDao.update(user));
     System.out.println("userDao.batchUpdate() = " + userDao.batchUpdate(Collections.singletonList(user)));
     System.out.println("userDao.selectAll() = " + userDao.selectAll());
+    System.out.println("userDao.select() = " + userDao.select(user));
+
+    ConditionRange conditionRange = new ConditionRange("id", 0, 100);
+    System.out.println("userDao.rangeSelect() = " + userDao.selectRange(conditionRange));
+    Range range = new LogicRange(conditionRange, LogicRange.Logic.AND, new ConditionRange("name", "a", "z"));
+    System.out.println("userDao.rangeSelect() = " + userDao.selectRange(range));
 
   }
 }

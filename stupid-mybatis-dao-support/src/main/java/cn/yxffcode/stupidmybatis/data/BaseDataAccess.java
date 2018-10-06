@@ -1,6 +1,7 @@
 package cn.yxffcode.stupidmybatis.data;
 
 import org.apache.ibatis.annotations.InsertProvider;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.SelectProvider;
 import org.apache.ibatis.annotations.UpdateProvider;
 
@@ -40,5 +41,29 @@ public interface BaseDataAccess<DO, ID> {
    */
   @SelectProvider(type = BaseDataAccessSqlProvider.class, method = "selectById")
   DO selectById(ID id);
+
+  /**
+   * 条件查询
+   *
+   * @param condition 查询条件
+   * @return 查询结果
+   */
+  @SelectProvider(type = BaseDataAccessSqlProvider.class, method = "conditionSelect")
+  List<DO> select(DO condition);
+
+  /**
+   * 范围查询，带上=参数
+   *
+   * @param condition 需要相等的条件参数
+   * @param range     范围参数
+   */
+  @SelectProvider(type = BaseDataAccessSqlProvider.class, method = "rangeSelect")
+  List<DO> selectFixedRange(@Param("equalCondition") DO condition, @Param("range") Range range);
+
+  /**
+   * 范围查询
+   */
+  @SelectProvider(type = BaseDataAccessSqlProvider.class, method = "rangeSelect")
+  List<DO> selectRange(@Param("range") Range range);
 
 }
