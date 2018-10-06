@@ -16,14 +16,15 @@ StupidMybatis为增强mybatis映射接口，并使得映射接口的注解具备
     * ORM / DAO：封装基于StupidMybatis核心层的基础DAO操作，减少DAO层的开发成本，提高DAO层的开发速度
     
 ## 框架特性
+* 默认ResultMap
+* 无SQL的注解支持，不需要写SQL就能完成单表的CURD操作
+* 常用DAO方法（CURD）的封装，不需要重新开发
 * 可重用的@Results
 * 使用default method作为ResultMap
 * 支持映射接口中默认方法的调用
 * 排序分页查询的增强(select * from table_name where id > #{lastPageMaxId} order by id limit #{pageSize})
 * 注解可扩展，可通过注解的扩展定制MappedStatement，给框架新增特性
 * 可通过注解扩展，对查询结果做后置处理
-* 默认ResultMap
-* 常用DAO方法（CURD）的封装，不需要重新开发
 * 批量更新插件
 * in查询插件
 * 自动分页查询所有数据
@@ -59,6 +60,230 @@ String resource = "mybatis-config.xml";
 InputStream inputStream = Resources.getResourceAsStream(resource);
 SqlSessionFactory sqlSessionFactory = new StupidSqlSessionFactoryBuilder().build(inputStream);
 ```
+
+## ORM
+### 默认ResultMap
+StupidMybatis提供了简单的ORM功能，ORM功能提供了默认使用的ResultMap，所有没有标记@Result且没标记@ResultMap
+的方法，会使用ORM中提供的ResultMap，使用方式：
+```java
+@TypeResultMap(id = "userResultMap", resultType = User.class, value = {
+    @Result(property = "id", column = "id"),
+    @Result(property = "name", column = "name_t")
+})
+//配置ORM信息
+@ORM(tableName = "user", resultMap = "userResultMap", primaryKey = @PrimaryKey(keyColumns = "id", autoGenerate = false))
+public interface UserDao {
+
+  @Select("select id, name_t from user")
+  List<User> selectAll();//没有指定@Result或者@ResultMap，会使用@ORM中指定的resultMap
+
+}
+
+```
+### 无SQL注解
+提供了无SQL的@ORMSelect, @ORMInsert, @ORMUpdate和@ORMDelete注解
+
+#### @ORMSelect
+@ORMSelect用于做数据库查询，@ORMSelect可指定查询出哪些属性(DO中的属性，非表中的字段)，如果没指定，
+则表示查询出所有@ORM中指定的resultMap中的所有字段，使用方式如下：
+```java
+@TypeResultMap(id = "userResultMap", resultType = User.class, value = {
+    @Result(property = "id", column = "id"),
+    @Result(property = "name", column = "name_t")
+})
+@ORM(tableName = "user", resultMap = "userResultMap", primaryKey = @PrimaryKey(keyColumns = "id", autoGenerate = false))
+public interface UserDao {
+
+  /**
+   * 查询所有，不提供查询参数，没指定查询字段，则查出ORM配置中指定的所有字段
+   */
+  @ORMSelect
+  List<User> selectAll();
+
+  /**
+   * 提供查询参数，按name属性查询，没指定查询字段，则查出ORM配置中指定的所有字段
+   */
+  @ORMSelect
+  User selectByName(@Param("name") String name);
+
+  /**
+   * 提供查询参数，按id和name属性查询，没指定查询字段，则查出ORM配置中指定的所有字段
+   */
+  @ORMSelect
+  List<User> selectByParams(@Param("id") int id, @Param("name") String name);
+
+  /**
+   * 提供查询参数，按id属性查询，指定查询name属性
+   */
+  @ORMSelect(properties = "name")
+  List<String> selectNames(@Param("id") int id);
+
+}
+
+```
+@ORMInsert, @ORMUpdate, @ORMDelete的使用方式与ORMSelect类似：
+```java
+@TypeResultMap(id = "userResultMap", resultType = User.class, value = {
+    @Result(property = "id", column = "id"),
+    @Result(property = "name", column = "name_t")
+})
+@ORM(tableName = "user", resultMap = "userResultMap", primaryKey = @PrimaryKey(keyColumns = "id", autoGenerate = false))
+public interface UserDao {
+
+  @ORMSelect
+  List<User> selectAll();
+
+  @ORMInsert
+  int insertUser(User user);
+
+  @ORMUpdate
+  int updateUser(User user);
+
+  @ORMUpdate
+  int updateUserByParams(@Param("id") int id, @Param("name") String name);
+
+  @ORMSelect
+  User selectByName(@Param("name") String name);
+
+  @ORMSelect
+  List<User> selectByParams(@Param("id") int id, @Param("name") String name);
+
+  @ORMSelect
+  List<User> selectByUserParams(User user);
+
+  @ORMSelect(properties = "name")
+  List<String> selectNames(@Param("id") int id);
+
+  @ORMDelete
+  int deleteUser(@Param("id") int id);
+
+  @ORMDelete(conditions = "name")
+  int deleteUserByName(@Param("name") String name);
+
+}
+
+```
+其它复杂sql，需要使用原生的mybatis注解@Select/@SelectProvider, @Update/@UpdateProvider等
+
+### DAO的通用方法
+DAO中会有一些共有的方法（insert, batchInsert, update, batchUpdate，selectById等，详情见BaseDataAccess接口）,
+BaseDataAccess接口支持如下方法：
+```java
+public interface BaseDataAccess<DO, ID> {
+
+  /**
+   * 插入数据
+   */
+  int insert(DO object);
+
+  /**
+   * 批量插入
+   */
+  int batchInsert(List<DO> objects);
+
+  /**
+   * 更新数据
+   */
+  int update(DO object);
+
+  /**
+   * 批量更新数据
+   */
+  int batchUpdate(List<DO> objects);
+
+  /**
+   * 通过id查询
+   */
+  DO selectById(ID id);
+
+  /**
+   * 条件查询
+   *
+   * @param condition 查询条件
+   * @return 查询结果
+   */
+  List<DO> select(DO condition);
+
+  /**
+   * 范围查询，带上=参数
+   *
+   * @param condition 需要相等的条件参数
+   * @param range     范围参数
+   */
+  List<DO> selectFixedRange(DO condition, Range range);
+
+  /**
+   * 范围查询
+   */
+  List<DO> selectRange(Range range);
+
+}
+
+```
+这里不提供delete方法，数据一般只逻辑删除。
+
+
+StupidMybatis通过@ORM的配置，提供了BaseDataAccess作为父接口，使得映射接口中不需要再重复的定义一些基础的方法，使用方式：
+```java
+@TypeResultMap(id = "userResultMap", resultType = User.class, value = {
+    @Result(property = "id", column = "id"),
+    @Result(property = "name", column = "name_t")
+})
+//这里一定要配置@ORM，指定表名，默认的resultMap和主键
+@ORM(tableName = "user", resultMap = "userResultMap", primaryKey = @PrimaryKey(keyColumns = "id", autoGenerate = false))
+//需要继承BaseDataAccess<DO, ID>接口
+public interface UserDao extends BaseDataAccess<User, Integer> {
+
+  @Select("select id, name_t from user")
+  List<User> selectAll();
+
+}
+```
+
+UserDao中可使用BaseDataAccess中的方法，不需要做其它编码，例如（spring的方式，非spring-boot）：
+```java
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration("classpath:spring.xml")
+public class ORMTest {
+
+  @Resource
+  private SqlSessionFactory sqlSessionFactory;
+
+  @Test
+  public void test() throws IOException {
+    SqlSession sqlSession = sqlSessionFactory.openSession();
+    UserDao userDao = sqlSession.getMapper(UserDao.class);
+
+    User user = new User();
+    user.setId(0);
+    user.setName("test");
+    userDao.batchInsert(Collections.singletonList(user));
+    user.setId(1);
+    userDao.insert(user);
+
+    System.out.println("userDao.selectAll() = " + userDao.selectAll());//UserDao中的方法
+    System.out.println("userDao.selectById() = " + userDao.selectById(0));//BaseDataAccess中的通用方法
+
+    user.setName("joh");
+    System.out.println("userDao.update() = " + userDao.update(user));
+    System.out.println("userDao.selectAll() = " + userDao.selectAll());
+    user.setName("john");
+    System.out.println("userDao.batchUpdate() = " + userDao.batchUpdate(Collections.singletonList(user)));
+    System.out.println("userDao.selectAll() = " + userDao.selectAll());
+
+  }
+}
+
+```
+
+### 范围查询的使用方式
+```java
+ConditionRange conditionRange = new ConditionRange("id", 0, 100);
+System.out.println("userDao.rangeSelect() = " + userDao.selectRange(conditionRange));
+Range range = new LogicRange(conditionRange, LogicRange.Logic.AND, new ConditionRange("name", "a", "z"));
+System.out.println("userDao.rangeSelect() = " + userDao.selectRange(range));
+```
+LogicRange可对任意的Range做AND或者OR的组合
 
 ## 可复用的Result注解
 mybatis提供的@esults注解只能标记在声明注解的方法上，如果有多个查询方法需要使用到相同的@Results注解，
@@ -411,146 +636,6 @@ public interface UserDao {
 }
 
 ```
-
-## ORM
-### 默认ResultMap
-StupidMybatis提供了简单的ORM功能，ORM功能提供了默认使用的ResultMap，所有没有标记@Result且没标记@ResultMap
-的方法，会使用ORM中提供的ResultMap，使用方式：
-```java
-@TypeResultMap(id = "userResultMap", resultType = User.class, value = {
-    @Result(property = "id", column = "id"),
-    @Result(property = "name", column = "name_t")
-})
-//配置ORM信息
-@ORM(tableName = "user", resultMap = "userResultMap", primaryKey = @PrimaryKey(keyColumns = "id", autoGenerate = false))
-public interface UserDao {
-
-  @Select("select id, name_t from user")
-  List<User> selectAll();//没有指定@Result或者@ResultMap，会使用@ORM中指定的resultMap
-
-}
-
-```
-
-### DAO的通用方法
-DAO中会有一些共有的方法（insert, batchInsert, update, batchUpdate，selectById等，详情见BaseDataAccess接口）,
-BaseDataAccess接口支持如下方法：
-```java
-public interface BaseDataAccess<DO, ID> {
-
-  /**
-   * 插入数据
-   */
-  int insert(DO object);
-
-  /**
-   * 批量插入
-   */
-  int batchInsert(List<DO> objects);
-
-  /**
-   * 更新数据
-   */
-  int update(DO object);
-
-  /**
-   * 批量更新数据
-   */
-  int batchUpdate(List<DO> objects);
-
-  /**
-   * 通过id查询
-   */
-  DO selectById(ID id);
-
-  /**
-   * 条件查询
-   *
-   * @param condition 查询条件
-   * @return 查询结果
-   */
-  List<DO> select(DO condition);
-
-  /**
-   * 范围查询，带上=参数
-   *
-   * @param condition 需要相等的条件参数
-   * @param range     范围参数
-   */
-  List<DO> selectFixedRange(DO condition, Range range);
-
-  /**
-   * 范围查询
-   */
-  List<DO> selectRange(Range range);
-
-}
-
-```
-这里不提供delete方法，数据一般只逻辑删除。
-
-
-StupidMybatis通过@ORM的配置，提供了BaseDataAccess作为父接口，使得映射接口中不需要再重复的定义一些基础的方法，使用方式：
-```java
-@TypeResultMap(id = "userResultMap", resultType = User.class, value = {
-    @Result(property = "id", column = "id"),
-    @Result(property = "name", column = "name_t")
-})
-//这里一定要配置@ORM，指定表名，默认的resultMap和主键
-@ORM(tableName = "user", resultMap = "userResultMap", primaryKey = @PrimaryKey(keyColumns = "id", autoGenerate = false))
-//需要继承BaseDataAccess<DO, ID>接口
-public interface UserDao extends BaseDataAccess<User, Integer> {
-
-  @Select("select id, name_t from user")
-  List<User> selectAll();
-
-}
-```
-
-UserDao中可使用BaseDataAccess中的方法，不需要做其它编码，例如（spring的方式，非spring-boot）：
-```java
-@RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration("classpath:spring.xml")
-public class ORMTest {
-
-  @Resource
-  private SqlSessionFactory sqlSessionFactory;
-
-  @Test
-  public void test() throws IOException {
-    SqlSession sqlSession = sqlSessionFactory.openSession();
-    UserDao userDao = sqlSession.getMapper(UserDao.class);
-
-    User user = new User();
-    user.setId(0);
-    user.setName("test");
-    userDao.batchInsert(Collections.singletonList(user));
-    user.setId(1);
-    userDao.insert(user);
-
-    System.out.println("userDao.selectAll() = " + userDao.selectAll());//UserDao中的方法
-    System.out.println("userDao.selectById() = " + userDao.selectById(0));//BaseDataAccess中的通用方法
-
-    user.setName("joh");
-    System.out.println("userDao.update() = " + userDao.update(user));
-    System.out.println("userDao.selectAll() = " + userDao.selectAll());
-    user.setName("john");
-    System.out.println("userDao.batchUpdate() = " + userDao.batchUpdate(Collections.singletonList(user)));
-    System.out.println("userDao.selectAll() = " + userDao.selectAll());
-
-  }
-}
-
-```
-
-### 范围查询的使用方式
-```java
-ConditionRange conditionRange = new ConditionRange("id", 0, 100);
-System.out.println("userDao.rangeSelect() = " + userDao.selectRange(conditionRange));
-Range range = new LogicRange(conditionRange, LogicRange.Logic.AND, new ConditionRange("name", "a", "z"));
-System.out.println("userDao.rangeSelect() = " + userDao.selectRange(range));
-```
-LogicRange可对任意的Range做AND或者OR的组合
 
 ## Mybatis批量插件
 mybatis已有的批量更新比较麻烦，要么写动态sql，要么利用BatchExecutor的SqlSession. 
