@@ -1,6 +1,10 @@
 package cn.yxffcode.stupidmybatis.commons;
 
+import com.google.common.base.Throwables;
+
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 /**
  * @author gaohang on 15/12/4.
@@ -51,6 +55,15 @@ public final class Reflections {
     } catch (Exception ex) {
       throw new IllegalStateException("Unexpected reflection exception - " + ex.getClass()
           .getName() + ": " + ex.getMessage(), ex);
+    }
+  }
+
+  public static <T> T call(Annotation annotation, String methodName) {
+    try {
+      Method method = annotation.annotationType().getMethod(methodName);
+      return (T) method.invoke(annotation);
+    } catch (Exception e) {
+      throw Throwables.propagate(e);
     }
   }
 }

@@ -38,6 +38,7 @@ public class StupidAnnotationParser extends MapperAnnotationBuilder {
   }
 
   private void invokeMapperHandlers(Method[] methods, MapperConfHandler.Order order) {
+    parseAnnotations(order, null, type.getAnnotations());
     for (Method method : methods) {
       Annotation[] annotations = method.getAnnotations();
       if (annotations == null || annotations.length == 0) {
@@ -45,7 +46,6 @@ public class StupidAnnotationParser extends MapperAnnotationBuilder {
       }
       parseAnnotations(order, method, annotations);
     }
-    parseAnnotations(order, null, type.getAnnotations());
   }
 
   private void parseAnnotations(MapperConfHandler.Order order, Method method, Annotation[] annotations) {

@@ -49,6 +49,21 @@ public class ORMTest {
     System.out.println("userDao.rangeSelect() = " + userDao.selectRange(conditionRange));
     Range range = new LogicRange(conditionRange, LogicRange.Logic.AND, new ConditionRange("name", "a", "z"));
     System.out.println("userDao.rangeSelect() = " + userDao.selectRange(range));
-
+    System.out.println("userDao.selectByName() = " + userDao.selectByName("test"));
+    System.out.println("userDao.selectByParams() = " + userDao.selectByParams(0, "test"));
+    System.out.println("userDao.selectByUserParams() = " + userDao.selectByUserParams(user));
+    user.setId(2);
+    userDao.insertUser(user);
+    System.out.println("userDao.selectAll() = " + userDao.selectAll());
+    user.setName("this is new name");
+    userDao.updateUser(user);
+    System.out.println("userDao.selectAll() = " + userDao.selectAll());
+    userDao.updateUserByParams(2, "this is sec new name");
+    System.out.println("userDao.selectAll() = " + userDao.selectAll());
+    System.out.println("userDao.selectNames() = " + userDao.selectNames(2));
+    System.out.println("userDao.deleteUser() = " + userDao.deleteUser(2));
+    System.out.println("userDao.selectAll() = " + userDao.selectAll());
+    System.out.println("userDao.deleteUserByName() = " + userDao.deleteUserByName("test"));
+    System.out.println("userDao.selectAll() = " + userDao.selectAll());
   }
 }

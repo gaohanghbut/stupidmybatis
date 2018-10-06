@@ -8,7 +8,9 @@ import com.google.common.collect.Maps;
 import org.apache.ibatis.mapping.ResultMap;
 import org.apache.ibatis.mapping.ResultMapping;
 
+import java.util.Collections;
 import java.util.Map;
+import java.util.Set;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -32,7 +34,7 @@ public class TableMetaCache {
 
   public void parse(ORM orm, ResultMap resultMap, Class<?> mapperInterface) {
     checkNotNull(mapperInterface);
-    Class<?> beanType = OrmUtils.getBeanType(mapperInterface);
+    Class<?> beanType = OrmUtils.getOrmEntityClass(mapperInterface);
 
     BiMap<String, String> mappings = getPropertyColumnMappings(resultMap, (Class<?>) beanType);
 
@@ -63,6 +65,10 @@ public class TableMetaCache {
       this.mappings = mappings;
     }
 
+    public Set<String> getProperties() {
+      return Collections.unmodifiableSet(mappings.keySet());
+    }
+
     public String getColumn(String property) {
       return mappings.get(property);
     }
@@ -73,6 +79,10 @@ public class TableMetaCache {
 
     public BiMap<String, String> getMappings() {
       return mappings;
+    }
+
+    public Set<String> getColumns() {
+      return mappings.values();
     }
   }
 }

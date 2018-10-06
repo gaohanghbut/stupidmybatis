@@ -18,8 +18,8 @@ import java.util.Map;
 public final class BaseDataAccessSqlProvider {
 
   public String selectById(Object id, ProviderContext providerContext) {
-    Class<?> beanType = OrmUtils.getBeanType(providerContext.getMapperType());
-    TableMetaCache.ORMConfig ormConfig = getOrmConfig(beanType);
+    Class<?> beanType = OrmUtils.getOrmEntityClass(providerContext.getMapperType());
+    TableMetaCache.ORMConfig ormConfig = OrmUtils.getOrmConfig(beanType);
 
     //column -> property
     BiMap<String, String> mappings = ormConfig.getMappings().inverse();
@@ -42,7 +42,7 @@ public final class BaseDataAccessSqlProvider {
   }
 
   private SQL buildSelectSql(Object param, ProviderContext providerContext) {
-    TableMetaCache.ORMConfig ormConfig = getOrmConfig(OrmUtils.getBeanType(providerContext.getMapperType()));
+    TableMetaCache.ORMConfig ormConfig = OrmUtils.getOrmConfig(OrmUtils.getOrmEntityClass(providerContext.getMapperType()));
 
     //column -> property
     BiMap<String, String> mappings = ormConfig.getMappings().inverse();
@@ -72,7 +72,7 @@ public final class BaseDataAccessSqlProvider {
   }
 
   public String rangeSelect(Map<String, Object> params, ProviderContext providerContext) {
-    TableMetaCache.ORMConfig ormConfig = getOrmConfig(OrmUtils.getBeanType(providerContext.getMapperType()));
+    TableMetaCache.ORMConfig ormConfig = OrmUtils.getOrmConfig(OrmUtils.getOrmEntityClass(providerContext.getMapperType()));
 
     SQL sql = null;
     Object equalCondition = params.containsKey("equalCondition") ? params.get("equalCondition") : null;
@@ -103,7 +103,7 @@ public final class BaseDataAccessSqlProvider {
   }
 
   public String insert(Object param) {
-    TableMetaCache.ORMConfig ormConfig = getOrmConfig(param.getClass());
+    TableMetaCache.ORMConfig ormConfig = OrmUtils.getOrmConfig(param.getClass());
 
     int columnCount = ormConfig.getMappings().size();
     if (ormConfig.getOrm().primaryKey().autoGenerate()) {
@@ -124,7 +124,7 @@ public final class BaseDataAccessSqlProvider {
   }
 
   public String update(Object param) {
-    TableMetaCache.ORMConfig ormConfig = getOrmConfig(param.getClass());
+    TableMetaCache.ORMConfig ormConfig = OrmUtils.getOrmConfig(param.getClass());
 
     BiMap<String, String> mappings = ormConfig.getMappings();
     String[] keyColumns = ormConfig.getOrm().primaryKey().keyColumns();
@@ -157,14 +157,6 @@ public final class BaseDataAccessSqlProvider {
       }
       sql.WHERE(conditionColumns.get(j) + " = #{" + inversedMappings.get(conditionColumns.get(j)) + '}');
     }
-  }
-
-  private TableMetaCache.ORMConfig getOrmConfig(Class<?> beanType) {
-    TableMetaCache.ORMConfig ormConfig = TableMetaCache.getInstance().getORMConfig(beanType);
-    if (ormConfig == null) {
-      throw new StupidMybatisOrmException("no orm config found for " + beanType);
-    }
-    return ormConfig;
   }
 
   private boolean isKeyColumn(String[] keyColumns, String column) {
