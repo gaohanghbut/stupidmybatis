@@ -413,6 +413,7 @@ public interface UserDao {
 ```
 
 ## ORM
+### 默认ResultMap
 StupidMybatis提供了简单的ORM功能，ORM功能提供了默认使用的ResultMap，所有没有标记@Result且没标记@ResultMap
 的方法，会使用ORM中提供的ResultMap，使用方式：
 ```java
@@ -431,7 +432,7 @@ public interface UserDao {
 
 ```
 
-## DAO的通用方法
+### DAO的通用方法
 DAO中会有一些共有的方法（insert, batchInsert, update, batchUpdate，selectById等，详情见BaseDataAccess接口）,
 BaseDataAccess接口支持如下方法：
 ```java
