@@ -525,6 +525,15 @@ public class ORMTest {
 
 ```
 
+### 范围查询的使用方式
+```java
+ConditionRange conditionRange = new ConditionRange("id", 0, 100);
+System.out.println("userDao.rangeSelect() = " + userDao.selectRange(conditionRange));
+Range range = new LogicRange(conditionRange, LogicRange.Logic.AND, new ConditionRange("name", "a", "z"));
+System.out.println("userDao.rangeSelect() = " + userDao.selectRange(range));
+```
+LogicRange可对任意的Range做AND或者OR的组合
+
 ## Mybatis批量插件
 mybatis已有的批量更新比较麻烦，要么写动态sql，要么利用BatchExecutor的SqlSession. 
 在工程中,更加希望DAO中的方法需要批量的时候用批量,不需要批量的时候不用批量. 有两种方式
