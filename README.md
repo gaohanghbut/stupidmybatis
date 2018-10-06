@@ -471,6 +471,8 @@ public interface BaseDataAccess<DO, ID> {
 }
 
 ```
+这里不提供delete方法，数据一般只逻辑删除。
+
 
 StupidMybatis通过@ORM的配置，提供了BaseDataAccess作为父接口，使得映射接口中不需要再重复的定义一些基础的方法，使用方式：
 ```java

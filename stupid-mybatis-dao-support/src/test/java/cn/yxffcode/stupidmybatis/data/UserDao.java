@@ -1,7 +1,6 @@
 package cn.yxffcode.stupidmybatis.data;
 
 import cn.yxffcode.stupidmybatis.core.statement.TypeResultMap;
-import cn.yxffcode.stupidmybatis.data.parser.ORM;
 import cn.yxffcode.stupidmybatis.data.parser.PrimaryKey;
 import org.apache.ibatis.annotations.Result;
 import org.apache.ibatis.annotations.Select;

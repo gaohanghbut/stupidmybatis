@@ -1,5 +1,6 @@
 package cn.yxffcode.stupidmybatis.data.parser;
 
+import cn.yxffcode.stupidmybatis.data.ORM;
 import cn.yxffcode.stupidmybatis.data.utils.OrmUtils;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;

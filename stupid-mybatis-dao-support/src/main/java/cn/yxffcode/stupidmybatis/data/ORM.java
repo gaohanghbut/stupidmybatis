@@ -1,9 +1,11 @@
-package cn.yxffcode.stupidmybatis.data.parser;
+package cn.yxffcode.stupidmybatis.data;
 
 import cn.yxffcode.stupidmybatis.commons.Reflections;
 import cn.yxffcode.stupidmybatis.core.cfg.MapperConfHandler;
 import cn.yxffcode.stupidmybatis.core.cfg.MapperConfigHandler;
 import cn.yxffcode.stupidmybatis.core.cfg.MybatisConfigUtils;
+import cn.yxffcode.stupidmybatis.data.parser.PrimaryKey;
+import cn.yxffcode.stupidmybatis.data.parser.TableMetaCache;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.apache.ibatis.annotations.Results;
