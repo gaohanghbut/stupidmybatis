@@ -418,6 +418,60 @@ public interface UserDao {
 
 ## DAO的通用方法
 DAO中会有一些共有的方法（insert, batchInsert, update, batchUpdate，selectById等，详情见BaseDataAccess接口）,
+BaseDataAccess接口支持如下方法：
+```java
+public interface BaseDataAccess<DO, ID> {
+
+  /**
+   * 插入数据
+   */
+  int insert(DO object);
+
+  /**
+   * 批量插入
+   */
+  int batchInsert(List<DO> objects);
+
+  /**
+   * 更新数据
+   */
+  int update(DO object);
+
+  /**
+   * 批量更新数据
+   */
+  int batchUpdate(List<DO> objects);
+
+  /**
+   * 通过id查询
+   */
+  DO selectById(ID id);
+
+  /**
+   * 条件查询
+   *
+   * @param condition 查询条件
+   * @return 查询结果
+   */
+  List<DO> select(DO condition);
+
+  /**
+   * 范围查询，带上=参数
+   *
+   * @param condition 需要相等的条件参数
+   * @param range     范围参数
+   */
+  List<DO> selectFixedRange(DO condition, Range range);
+
+  /**
+   * 范围查询
+   */
+  List<DO> selectRange(Range range);
+
+}
+
+```
+
 StupidMybatis通过@ORM的配置，提供了BaseDataAccess作为父接口，使得映射接口中不需要再重复的定义一些基础的方法，使用方式：
 ```java
 @TypeResultMap(id = "userResultMap", resultType = User.class, value = {
