@@ -14,6 +14,21 @@ StupidMybatis为增强mybatis映射接口，并使得映射接口的注解具备
     * 对spring的支持：用于支持传统的spring-mybatis的整合开发
     * 对spring-boot的支持：提供快速自动配置能力
     * ORM / DAO：封装基于StupidMybatis核心层的基础DAO操作，减少DAO层的开发成本，提高DAO层的开发速度
+    
+## 框架特性
+* 可重用的@Results
+* 使用default method作为ResultMap
+* 支持映射接口中默认方法的调用
+* 排序分页查询的增强(select * from table_name where id > #{lastPageMaxId} order by id limit #{pageSize})
+* 注解可扩展，可通过注解的扩展定制MappedStatement，给框架新增特性
+* 可通过注解扩展，对查询结果做后置处理
+* 默认ResultMap
+* 常用DAO方法（CURD）的封装，不需要重新开发
+* 批量更新插件
+* in查询插件
+* 自动分页查询所有数据
+* 完全兼容原生mybatis
+* 支持mybatis-spring和mybatis-spring-boot
 
 ## 使用配置
 ### 使用spring
