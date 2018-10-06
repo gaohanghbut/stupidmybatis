@@ -265,7 +265,7 @@ map.put("name", "hello");
 User user = userDao.mapToUser(map);
 ```
 
-## 通过主键分页
+## 排序分页查询的增强
 分页查询通常需要使用offset和limit两个参数，当表中的数据量非常大时，offset会有比较差的性能，
 一种优化的分页方式是维护一个id，每次查询时作为参数传入，例如：
 ```java
@@ -305,7 +305,7 @@ public interface UserDao {
       @Result(property = "id", column = "id"),
       @Result(property = "name", column = "name")
   })//这里也可以使用@ResultMap
-  @OrderPagination("id")//指定哪个属性表示的是主键的值，如果主键有多个字段，暂时只支持多个字段通过一个类组合成属性的情况
+  @OrderPagination("id")//指定哪个属性表示的是分页字段的值，如果主键有多个字段，暂时只支持多个字段通过一个类组合成属性的情况
   OrderPageList<User, Integer> select(@Param("lastMaxId") int lastMaxId, @Param("pageSize") int pageSize);
 }
 ```
