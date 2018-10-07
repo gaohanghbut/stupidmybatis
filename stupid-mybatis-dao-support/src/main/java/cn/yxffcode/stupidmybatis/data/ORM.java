@@ -6,9 +6,9 @@ import cn.yxffcode.stupidmybatis.core.cfg.MapperConfigHandler;
 import cn.yxffcode.stupidmybatis.core.cfg.MybatisConfigUtils;
 import cn.yxffcode.stupidmybatis.data.parser.PrimaryKey;
 import cn.yxffcode.stupidmybatis.data.parser.TableMetaCache;
-import cn.yxffcode.stupidmybatis.data.sql.KeyWord;
-import cn.yxffcode.stupidmybatis.data.sql.KeyWordHandler;
-import cn.yxffcode.stupidmybatis.data.sql.KeyWords;
+import cn.yxffcode.stupidmybatis.data.sql.Macro;
+import cn.yxffcode.stupidmybatis.data.sql.MacroHandler;
+import cn.yxffcode.stupidmybatis.data.sql.MacroDeclare;
 import cn.yxffcode.stupidmybatis.data.utils.OrmUtils;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
@@ -87,17 +87,17 @@ public @interface ORM {
       for (Method method : methods) {
         if (!method.isBridge()) {
           if (assistant.getConfiguration().hasStatement(assistant.getCurrentNamespace() + '.' + method.getName())) {
-            KeyWordHandler.getInstance().handleKeyWords(mapperInterface, method, ormConfig, assistant);
+            MacroHandler.getInstance().handleKeyWords(mapperInterface, method, ormConfig, assistant);
           }
         }
       }
     }
 
     private void registKeyWords(Class<?> mapperInterface) {
-      KeyWords keyWords = mapperInterface.getAnnotation(KeyWords.class);
-      if (keyWords != null) {
-        for (KeyWord keyWord : keyWords.value()) {
-          KeyWordHandler.getInstance().registKeyWord(mapperInterface, keyWord);
+      MacroDeclare macroDeclare = mapperInterface.getAnnotation(MacroDeclare.class);
+      if (macroDeclare != null) {
+        for (Macro macro : macroDeclare.value()) {
+          MacroHandler.getInstance().registKeyWord(mapperInterface, macro);
         }
       }
 

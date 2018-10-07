@@ -11,7 +11,7 @@ import java.lang.annotation.*;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
-public @interface KeyWord {
+public @interface Macro {
   /**
    * @return 关键词名
    */
@@ -30,8 +30,8 @@ public @interface KeyWord {
   final class ValueSqlContentProvider implements SqlContentProvider {
 
     @Override
-    public String getContent(KeyWord keyWord, TableMetaCache.ORMConfig ormConfig, MappedStatement mappedStatement) {
-      return keyWord.value();
+    public String getContent(Macro macro, TableMetaCache.ORMConfig ormConfig, MappedStatement mappedStatement) {
+      return macro.value();
     }
   }
 }

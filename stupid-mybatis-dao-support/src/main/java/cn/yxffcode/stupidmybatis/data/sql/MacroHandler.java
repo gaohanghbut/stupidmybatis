@@ -24,24 +24,24 @@ import java.util.regex.Pattern;
 /**
  * @author gaohang
  */
-public abstract class KeyWordHandler {
+public abstract class MacroHandler {
 
-  private static final KeyWordHandler DEFAULT_KEYWORD_HANDLER = new DefaultKeyWordHandler();
+  private static final MacroHandler DEFAULT_KEYWORD_HANDLER = new DefaultMacroHandler();
 
   protected final SqlContentProvider commonKeyWordSqlContextProvider = new CommonKeyWordContextProvider();
   protected final Table<Class<?>, String, SqlContentProvider> sqlContextProviders = HashBasedTable.create();
-  protected final Table<Class<?>, String, KeyWord> keywordAnnotations = HashBasedTable.create();
+  protected final Table<Class<?>, String, Macro> keywordAnnotations = HashBasedTable.create();
 
-  public static KeyWordHandler getInstance() {
+  public static MacroHandler getInstance() {
     return DEFAULT_KEYWORD_HANDLER;
   }
 
   public abstract void handleKeyWords(Class<?> mapperInterface, Method method, TableMetaCache.ORMConfig ormConfig, MapperBuilderAssistant assistant) throws Throwable;
 
-  public void registKeyWord(Class<?> mapperInterface, KeyWord keyWord) {
+  public void registKeyWord(Class<?> mapperInterface, Macro macro) {
     try {
-      sqlContextProviders.put(mapperInterface, keyWord.name(), keyWord.contentProvider().newInstance());
-      keywordAnnotations.put(mapperInterface, keyWord.name(), keyWord);
+      sqlContextProviders.put(mapperInterface, macro.name(), macro.contentProvider().newInstance());
+      keywordAnnotations.put(mapperInterface, macro.name(), macro);
     } catch (Exception e) {
       throw Throwables.propagate(e);
     }
@@ -52,7 +52,7 @@ public abstract class KeyWordHandler {
     return OrmUtils.getOrmConfig(ormEntityClass);
   }
 
-  private static final class DefaultKeyWordHandler extends KeyWordHandler {
+  private static final class DefaultMacroHandler extends MacroHandler {
 
     private static final Pattern KEYWORD_PATTERN = Pattern.compile("@\\w+");
 
@@ -85,15 +85,15 @@ public abstract class KeyWordHandler {
             lastEnd = start + keyWordRef.length();
             String keyword = keyWordRef.substring(1);
             SqlContentProvider sqlContentProvider = sqlContextProviders.get(mapperInterface, keyword);
-            KeyWord keyWordAnnotation = keywordAnnotations.get(mapperInterface, keyword);
+            Macro macroAnnotation = keywordAnnotations.get(mapperInterface, keyword);
             if (sqlContentProvider != null) {
-              newSql.append(sqlContentProvider.getContent(keyWordAnnotation, ormConfig, mappedStatement));
+              newSql.append(sqlContentProvider.getContent(macroAnnotation, ormConfig, mappedStatement));
             } else {
-              KeyWord keyWord = CommonKeyWordContextProvider.getKeyWord(keyword);
-              if (keyWord == null) {
+              Macro macro = CommonKeyWordContextProvider.getKeyWord(keyword);
+              if (macro == null) {
                 throw new UnknownKeyWordException(keyword + " is not found in mapper " + mapperInterface.getName());
               }
-              newSql.append(commonKeyWordSqlContextProvider.getContent(keyWord, ormConfig, mappedStatement));
+              newSql.append(commonKeyWordSqlContextProvider.getContent(macro, ormConfig, mappedStatement));
             }
           }
           //append end
@@ -115,18 +115,18 @@ public abstract class KeyWordHandler {
 
     private static final Joiner COMMA_JOINER = Joiner.on(',');
 
-    private final static Map<String, KeyWord> COMMON_KEYWORDS = Maps.newHashMap();
+    private final static Map<String, Macro> COMMON_KEYWORDS = Maps.newHashMap();
 
     static {
-      COMMON_KEYWORDS.put(PROPERTIES_KEYWORD, new CommonKeyWord(PROPERTIES_KEYWORD));
-      COMMON_KEYWORDS.put(COLUMNS_KEYWORD, new CommonKeyWord(COLUMNS_KEYWORD));
-      COMMON_KEYWORDS.put(PRIMARYKEY_KEYWORD, new CommonKeyWord(PRIMARYKEY_KEYWORD));
+      COMMON_KEYWORDS.put(PROPERTIES_KEYWORD, new CommonMacro(PROPERTIES_KEYWORD));
+      COMMON_KEYWORDS.put(COLUMNS_KEYWORD, new CommonMacro(COLUMNS_KEYWORD));
+      COMMON_KEYWORDS.put(PRIMARYKEY_KEYWORD, new CommonMacro(PRIMARYKEY_KEYWORD));
     }
 
-    private static final class CommonKeyWord implements KeyWord {
+    private static final class CommonMacro implements Macro {
       private final String name;
 
-      private CommonKeyWord(String name) {
+      private CommonMacro(String name) {
         this.name = name;
       }
 
@@ -137,27 +137,27 @@ public abstract class KeyWordHandler {
 
       @Override
       public String value() {
-        throw new UnsupportedOperationException("cannot invoke value() method in CommonKeyWord");
+        throw new UnsupportedOperationException("cannot invoke value() method in CommonMacro");
       }
 
       @Override
       public Class<? extends SqlContentProvider> contentProvider() {
-        throw new UnsupportedOperationException("cannot invoke contentProvider() method in CommonKeyWord");
+        throw new UnsupportedOperationException("cannot invoke contentProvider() method in CommonMacro");
       }
 
       @Override
       public Class<? extends Annotation> annotationType() {
-        return KeyWord.class;
+        return Macro.class;
       }
     }
 
-    private static KeyWord getKeyWord(String keyword) {
+    private static Macro getKeyWord(String keyword) {
       return COMMON_KEYWORDS.get(keyword);
     }
 
     @Override
-    public String getContent(KeyWord keyWord, TableMetaCache.ORMConfig ormConfig, MappedStatement mappedStatement) {
-      switch (keyWord.name()) {
+    public String getContent(Macro macro, TableMetaCache.ORMConfig ormConfig, MappedStatement mappedStatement) {
+      switch (macro.name()) {
         case PROPERTIES_KEYWORD: {
           Set<String> properties = ormConfig.getProperties();
           return COMMA_JOINER.join(properties);
@@ -171,7 +171,7 @@ public abstract class KeyWordHandler {
           return COMMA_JOINER.join(keyColumns);
         }
         default:
-          throw new UnknownKeyWordException(keyWord.name() + " is unknown, plz define it");
+          throw new UnknownKeyWordException(macro.name() + " is unknown, plz define it");
       }
     }
   }

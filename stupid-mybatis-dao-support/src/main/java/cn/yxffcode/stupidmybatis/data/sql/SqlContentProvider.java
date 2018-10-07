@@ -7,5 +7,5 @@ import org.apache.ibatis.mapping.MappedStatement;
  * @author gaohang
  */
 public interface SqlContentProvider {
-  String getContent(KeyWord keyWord, TableMetaCache.ORMConfig ormConfig, MappedStatement mappedStatement);
+  String getContent(Macro macro, TableMetaCache.ORMConfig ormConfig, MappedStatement mappedStatement);
 }
