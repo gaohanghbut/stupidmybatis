@@ -33,7 +33,7 @@ public interface BaseDataAccess<DO, ID> {
   /**
    * 更新数据，忽略null属性
    */
-  @ORMUpdate(ignoreNull = true)
+  @ORMUpdate
   int updateIgnoreNull(DO object);
 
   /**
