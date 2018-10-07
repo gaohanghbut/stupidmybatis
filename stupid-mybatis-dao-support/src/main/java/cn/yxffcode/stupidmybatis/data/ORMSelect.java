@@ -8,6 +8,7 @@ import cn.yxffcode.stupidmybatis.data.cfg.SpecifiedSelectProvider;
 import cn.yxffcode.stupidmybatis.data.parser.MapperAnnotationBuilder;
 import cn.yxffcode.stupidmybatis.data.parser.TableMetaCache;
 import cn.yxffcode.stupidmybatis.data.utils.OrmUtils;
+import com.google.common.base.Strings;
 import org.apache.ibatis.annotations.ResultMap;
 import org.apache.ibatis.builder.MapperBuilderAssistant;
 import org.apache.ibatis.builder.annotation.ProviderContext;
@@ -33,6 +34,11 @@ public @interface ORMSelect {
    * @return 需要查询的DO属性(不是表的字段)，默认为@ORM中的resultMap上所有的属性
    */
   String[] properties() default {};
+
+  /**
+   * @return 参数前缘，比如paramPrefix="user"，则参数为 #{user.id}，#{user.name}
+   */
+  String paramPrefix() default "";
 
   final class Config implements MapperConfigHandler<ORMSelect> {
 
@@ -76,10 +82,45 @@ public @interface ORMSelect {
           .SELECT(columns)
           .FROM(ormConfig.getOrm().tableName());
 
-      if (params == null) {
+      if (params != null) {
+        String paramPrefix = providerContext.getMapperMethod().getDeclaredAnnotation(ORMSelect.class).paramPrefix();
+        appendConditions(params, paramPrefix, resultType, ormConfig, sql);
+      }
+      //group by
+      appendGroupBy(providerContext, sql, ormConfig);
+
+      //order by
+      appendOrderBy(providerContext, sql, ormConfig);
+
+      //limit
+      Limitation limitation = providerContext.getMapperMethod().getAnnotation(Limitation.class);
+      if (limitation == null) {
         return sql.toString();
       }
 
+      return sql.toString() + " limit " + limitation.offset() + ',' + limitation.limit();
+    }
+
+    private void appendOrderBy(ProviderContext providerContext, SQL sql, TableMetaCache.ORMConfig ormConfig) {
+      OrderBy orderBy = providerContext.getMapperMethod().getAnnotation(OrderBy.class);
+      if (orderBy != null) {
+        OrderBy.Order[] orders = orderBy.value();
+        for (OrderBy.Order order : orders) {
+          sql.ORDER_BY(ormConfig.getColumn(order.value()) + ' ' + order.sort());
+        }
+      }
+    }
+
+    private void appendGroupBy(ProviderContext providerContext, SQL sql, TableMetaCache.ORMConfig ormConfig) {
+      GroupBy groupBy = providerContext.getMapperMethod().getAnnotation(GroupBy.class);
+      if (groupBy != null) {
+        for (String prop : groupBy.value()) {
+          sql.GROUP_BY(ormConfig.getColumn(prop));
+        }
+      }
+    }
+
+    private void appendConditions(Object params, String paramPrefix, Class<?> resultType, TableMetaCache.ORMConfig ormConfig, SQL sql) {
       if (resultType.isAssignableFrom(params.getClass())) {
         for (Map.Entry<String, String> en : ormConfig.getMappings().entrySet()) {
           String field = en.getKey();
@@ -87,7 +128,11 @@ public @interface ORMSelect {
           if (value == null) {
             continue;
           }
-          sql.WHERE(en.getValue() + " = #{" + field + '}').AND();
+          if (Strings.isNullOrEmpty(paramPrefix)) {
+            sql.WHERE(en.getValue() + " = #{" + field + '}').AND();
+          } else {
+            sql.WHERE(en.getValue() + " = #{" + paramPrefix + '.' + field + '}').AND();
+          }
         }
       } else if (params instanceof Map) {
         for (Map.Entry<String, ?> en : ((Map<String, ?>) params).entrySet()) {
@@ -95,14 +140,16 @@ public @interface ORMSelect {
           if (column == null) {
             continue;
           }
-          sql.WHERE(column + " = #{" + en.getKey() + '}').AND();
+          if (Strings.isNullOrEmpty(paramPrefix)) {
+            sql.WHERE(column + " = #{" + en.getKey() + '}').AND();
+          } else {
+            sql.WHERE(column + " = #{" + paramPrefix + '.' + en.getKey() + '}').AND();
+          }
         }
       } else {
         throw new StupidMybatisOrmException("unknown parameter map, please add @Param(fieldName) to parameters");
       }
       sql.WHERE("1=1");
-
-      return sql.toString();
     }
 
   }

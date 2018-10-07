@@ -1,10 +1,8 @@
 package cn.yxffcode.stupidmybatis.data;
 
-import cn.yxffcode.stupidmybatis.commons.Reflections;
 import cn.yxffcode.stupidmybatis.core.cfg.MapperConfHandler;
 import cn.yxffcode.stupidmybatis.core.cfg.MapperConfigHandler;
 import cn.yxffcode.stupidmybatis.data.cfg.SpecifiedDeleteProvider;
-import cn.yxffcode.stupidmybatis.data.cfg.SpecifiedUpdateProvider;
 import cn.yxffcode.stupidmybatis.data.parser.MapperAnnotationBuilder;
 import cn.yxffcode.stupidmybatis.data.parser.TableMetaCache;
 import cn.yxffcode.stupidmybatis.data.utils.OrmUtils;
@@ -14,7 +12,6 @@ import org.apache.ibatis.jdbc.SQL;
 
 import java.lang.annotation.*;
 import java.lang.reflect.Method;
-import java.util.Map;
 
 import static cn.yxffcode.stupidmybatis.data.utils.OrmUtils.getOrmConfig;
 

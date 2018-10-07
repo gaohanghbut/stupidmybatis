@@ -4,6 +4,7 @@ import cn.yxffcode.stupidmybatis.core.statement.TypeResultMap;
 import cn.yxffcode.stupidmybatis.data.parser.PrimaryKey;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Result;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -18,7 +19,13 @@ import java.util.List;
 public interface UserDao extends BaseDataAccess<User, Integer> {
 
   @ORMSelect
+  @OrderBy(@OrderBy.Order(value = "id", sort = OrderBy.Sort.DESC))
+  @GroupBy({"name", "id"})
+  @Limitation(offset = 0, limit = 100)
   List<User> selectAll();
+
+  @Select("select @properties from user order by @primaryKey limit #{offset}, #{limit}")
+  List<User> selectPage(@Param("offset") int offset, @Param("limit") int limit);
 
   @ORMInsert
   int insertUser(User user);
