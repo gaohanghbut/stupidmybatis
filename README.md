@@ -16,11 +16,11 @@ StupidMybatis为增强mybatis映射接口，并使得映射接口的注解具备
     * ORM / DAO：封装基于StupidMybatis核心层的基础DAO操作，减少DAO层的开发成本，提高DAO层的开发速度
     
 ## 框架特性
-* 默认ResultMap
+* 默认ResultMap,SQL不指定resultMap则使用默认resultMap
 * 无SQL的注解支持，不需要写SQL就能完成单表的CURD操作
 * 支持用于SQL替换的宏，支持自定义宏
 * 常用DAO方法（CURD）的封装，不需要重新开发
-* 可重用的@Results
+* 可重用的@Results，相同的映射不需要多次定义@Results，可使用@TypeResultMap定义一次
 * 使用default method作为ResultMap
 * 支持映射接口中默认方法的调用
 * 排序分页查询的增强(select * from table_name where id > #{lastPageMaxId} order by id limit #{pageSize})
