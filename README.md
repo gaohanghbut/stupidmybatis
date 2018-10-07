@@ -10,10 +10,10 @@ StupidMybatis为增强mybatis映射接口，并使得映射接口的注解具备
     * 提供可扩展的注解机制，分为配置处理注解与运行处理注解两部分，分别用于增强mybatis的配置和增强mybatis的数据访问的执行能力
     * 基于可扩展的注解机制提供一定的核心功能增强
     * 增强插件：用于增强mybatis核心能力的mybatis插件(这部分后面可提升到上一层)
-* 支持层，包含三个部分：
+* orm层:封装基于StupidMybatis核心层的基础DAO操作，减少DAO层的开发成本，提高DAO层的开发速度
+* 初始化层，包含三个部分：
     * 对spring的支持：用于支持传统的spring-mybatis的整合开发
     * 对spring-boot的支持：提供快速自动配置能力
-    * ORM / DAO：封装基于StupidMybatis核心层的基础DAO操作，减少DAO层的开发成本，提高DAO层的开发速度
     
 ## 框架特性
 * 默认ResultMap,SQL不指定resultMap则使用默认resultMap
