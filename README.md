@@ -182,6 +182,82 @@ public interface UserDao extends BaseDataAccess<User, Integer> {
 }
 ```
 
+### SQL关键词内容替换
+想要使用关键词，DAO映射接口上必须通过@ORM注解标记
+#### 内置关键词
+StupidMybatis提供了3个内置关键词（@properties, @columns, @primaryKey），可以sql中使用，例如：
+```java
+@TypeResultMap(id = "userResultMap", resultType = User.class, value = {
+    @Result(property = "id", column = "id"),
+    @Result(property = "name", column = "name_t")
+})
+@ORM(tableName = "user", resultMap = "userResultMap", primaryKey = @PrimaryKey(keyColumns = "id", autoGenerate = false))
+public interface UserDao {
+
+  @Select("select @columns from user order by id limit #{offset}, #{limit}")
+  List<User> selectPage(@Param("offset") int offset, @Param("limit") int limit);
+
+}
+```
+执行的sql将会是：select id, name_t from user order by id limit ?, ?
+
+#### 自定义关键词
+可通过@KeyWords和@KeyWord注解自定义关键词，@KeyWord的定义为：
+```java
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Inherited
+public @interface KeyWord {
+  /**
+   * @return 关键词名
+   */
+  String name();
+
+  /**
+   * @return 关键词的内容，如果没有指定{@link #contentProvider()}则使用value的值
+   */
+  String value() default "";
+
+  /**
+   * @return 处理关键词，替换为sql中的内容的SqlContentProvider，默认为取value的值
+   */
+  Class<? extends SqlContentProvider> contentProvider() default ValueSqlContentProvider.class;
+}
+```
+
+自定义关键词的使用方式：
+```java
+@TypeResultMap(id = "userResultMap", resultType = User.class, value = {
+    @Result(property = "id", column = "id"),
+    @Result(property = "name", column = "name_t")
+})
+@ORM(tableName = "user", resultMap = "userResultMap", primaryKey = @PrimaryKey(keyColumns = "id", autoGenerate = false))
+@KeyWords({
+    @KeyWord(name = "statementId", contentProvider = StatementIdSqlContentProvider.class),
+    @KeyWord(name = "notDeleted", value = "status != 0")
+})
+public interface UserDao extends BaseDataAccess<User, Integer> {
+
+  @Select("select /* @statementId */ @columns from user where @notDeleted order by id limit #{offset}, #{limit}")
+  List<User> selectPage(@Param("offset") int offset, @Param("limit") int limit);
+
+}
+
+```
+StatementIdSqlContentProvider的实现很简单，用于返回statementId:
+```java
+public class StatementIdSqlContentProvider implements SqlContentProvider {
+  @Override
+  public String getContent(KeyWord keyWord, TableMetaCache.ORMConfig ormConfig, MappedStatement mappedStatement) {
+    return mappedStatement.getId();
+  }
+}
+```
+此处定义了两个关键词，分别说明了@KeyWord中的contentProvider和value的用法，最终执行的sql为：
+```sql
+select /* cn.yxffcode.stupidmybatis.data.UserDao.selectPage */ id,name_t from user where status != 0 order by id limit ?, ?
+```
+
 ### DAO的通用方法
 DAO中会有一些共有的方法（insert, batchInsert, update, batchUpdate，selectById等，详情见BaseDataAccess接口）,
 BaseDataAccess接口支持如下方法：
