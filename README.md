@@ -183,7 +183,7 @@ public interface UserDao extends BaseDataAccess<User, Integer> {
 }
 ```
 
-### SQL关键词内容替换
+### SQL替换关键词
 想要使用关键词，DAO映射接口上必须通过@ORM注解标记
 #### 内置关键词
 StupidMybatis提供了3个内置关键词（@properties, @columns, @primaryKey），可以sql中使用，例如：
