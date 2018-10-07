@@ -65,5 +65,6 @@ public class ORMTest {
     System.out.println("userDao.selectAll() = " + userDao.selectAll());
     System.out.println("userDao.deleteUserByName() = " + userDao.deleteUserByName("test"));
     System.out.println("userDao.selectAll() = " + userDao.selectAll());
+    System.out.println("userDao.selectPage2() = " + userDao.selectPage2(0, 100));
   }
 }

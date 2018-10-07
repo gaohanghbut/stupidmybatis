@@ -19,10 +19,13 @@ import java.util.List;
 public interface UserDao extends BaseDataAccess<User, Integer> {
 
   @ORMSelect
+  List<User> selectAll();
+
+  @ORMSelect
   @OrderBy(@OrderBy.Order(value = "id", sort = OrderBy.Sort.DESC))
   @GroupBy({"name", "id"})
-  @Limitation(offset = 0, limit = 100)
-  List<User> selectAll();
+  @Limitation(offsetParam = "offset", limitParam = "limit")
+  List<User> selectPage2(@Param("offset") int offset, @Param("limit") int limit);
 
   @Select("select @properties from user order by @primaryKey limit #{offset}, #{limit}")
   List<User> selectPage(@Param("offset") int offset, @Param("limit") int limit);

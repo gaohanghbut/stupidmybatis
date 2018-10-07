@@ -165,6 +165,23 @@ public interface UserDao {
 ```
 其它复杂sql，需要使用原生的mybatis注解@Select/@SelectProvider, @Update/@UpdateProvider等
 
+### 无SQL注解的order by, group by, limit
+```java
+@TypeResultMap(id = "userResultMap", resultType = User.class, value = {
+    @Result(property = "id", column = "id"),
+    @Result(property = "name", column = "name_t")
+})
+@ORM(tableName = "user", resultMap = "userResultMap", primaryKey = @PrimaryKey(keyColumns = "id", autoGenerate = false))
+public interface UserDao extends BaseDataAccess<User, Integer> {
+
+  @ORMSelect
+  @OrderBy(@OrderBy.Order(value = "id", sort = OrderBy.Sort.DESC))
+  @GroupBy({"name", "id"})
+  @Limitation(offsetParam = "offset", limitParam = "limit")
+  List<User> select(@Param("offset") int offset, @Param("limit") int limit);
+}
+```
+
 ### DAO的通用方法
 DAO中会有一些共有的方法（insert, batchInsert, update, batchUpdate，selectById等，详情见BaseDataAccess接口）,
 BaseDataAccess接口支持如下方法：
