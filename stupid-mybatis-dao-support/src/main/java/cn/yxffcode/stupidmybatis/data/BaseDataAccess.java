@@ -31,6 +31,12 @@ public interface BaseDataAccess<DO, ID> {
   int update(DO object);
 
   /**
+   * 更新数据，忽略null属性
+   */
+  @ORMUpdate(ignoreNull = true)
+  int updateIgnoreNull(DO object);
+
+  /**
    * 批量更新数据
    */
   @UpdateProvider(type = BaseDataAccessSqlProvider.class, method = "update")
