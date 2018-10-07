@@ -8,14 +8,23 @@ import java.lang.annotation.*;
 /**
  * @author gaohang
  */
-@Target({ElementType.METHOD, ElementType.TYPE})
+@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 public @interface KeyWord {
+  /**
+   * @return 关键词名
+   */
   String name();
 
+  /**
+   * @return 关键词的内容，如果没有指定{@link #contentProvider()}则使用value的值
+   */
   String value() default "";
 
+  /**
+   * @return 处理关键词，替换为sql中的内容的SqlContentProvider
+   */
   Class<? extends SqlContentProvider> contentProvider() default ValueSqlContentProvider.class;
 
   final class ValueSqlContentProvider implements SqlContentProvider {
