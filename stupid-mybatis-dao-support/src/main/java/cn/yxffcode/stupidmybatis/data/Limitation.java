@@ -9,6 +9,6 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
 public @interface Limitation {
-  int offset() default 0;
-  int limit();
+  String offsetParam() default "";
+  String limitParam();
 }

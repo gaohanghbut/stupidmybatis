@@ -98,7 +98,14 @@ public @interface ORMSelect {
         return sql.toString();
       }
 
-      return sql.toString() + " limit " + limitation.offset() + ',' + limitation.limit();
+      StringBuilder sb = new StringBuilder(sql.toString());
+      sb.append(" limit ");
+      if (!Strings.isNullOrEmpty(limitation.offsetParam())) {
+        sb.append(" #{").append(limitation.offsetParam()).append('}').append(',');
+      }
+      sb.append(" #{").append(limitation.limitParam()).append('}');
+
+      return sb.toString();
     }
 
     private void appendOrderBy(ProviderContext providerContext, SQL sql, TableMetaCache.ORMConfig ormConfig) {
