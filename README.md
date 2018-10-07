@@ -81,7 +81,7 @@ public interface UserDao {
 
 ```
 ### 无SQL注解
-提供了无SQL的@ORMSelect, @ORMInsert, @ORMUpdate和@ORMDelete注解
+提供了无SQL的@ORMSelect, @ORMInsert, @ORMUpdate和@ORMDelete注解。无SQL注解适用于单表的简单操作，复杂操作如left join需要使用原生mybatis
 
 #### @ORMSelect
 @ORMSelect用于做数据库查询，@ORMSelect可指定查询出哪些属性(DO中的属性，非表中的字段)，如果没指定，
