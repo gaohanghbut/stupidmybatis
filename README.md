@@ -203,7 +203,7 @@ public interface UserDao {
 执行的sql将会是：select id, name_t from user order by id limit ?, ?
 
 #### 自定义宏
-可通过@MacroDeclare@Macro注解自定义宏，@的定义为：
+可通过@MacroDeclare和@Macro注解自定义宏，@Macro的定义为：
 ```java
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
