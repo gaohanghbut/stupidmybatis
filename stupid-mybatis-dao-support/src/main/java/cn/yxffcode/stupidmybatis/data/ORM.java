@@ -6,6 +6,10 @@ import cn.yxffcode.stupidmybatis.core.cfg.MapperConfigHandler;
 import cn.yxffcode.stupidmybatis.core.cfg.MybatisConfigUtils;
 import cn.yxffcode.stupidmybatis.data.parser.PrimaryKey;
 import cn.yxffcode.stupidmybatis.data.parser.TableMetaCache;
+import cn.yxffcode.stupidmybatis.data.sql.KeyWord;
+import cn.yxffcode.stupidmybatis.data.sql.KeyWordHandler;
+import cn.yxffcode.stupidmybatis.data.sql.KeyWords;
+import cn.yxffcode.stupidmybatis.data.utils.OrmUtils;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import org.apache.ibatis.annotations.Results;
@@ -46,27 +50,60 @@ public @interface ORM {
 
     @Override
     public void handleAnnotation(ORM orm, Class<?> type, Method mtd, MapperBuilderAssistant assistant) throws Throwable {
+      doHandle(orm, type, assistant);
+    }
+
+    private void doHandle(ORM orm, Class<?> mapperInterface, MapperBuilderAssistant assistant) throws Throwable {
+      //parse keywords
+      registKeyWords(mapperInterface);
+
       String ormResultMap = orm.resultMap();
       if (Strings.isNullOrEmpty(ormResultMap) || Strings.isNullOrEmpty(ormResultMap.trim())) {
         return;
       }
 
-      for (Method method : type.getMethods()) {
+      Method[] methods = mapperInterface.getMethods();
+
+
+      ResultMap defaultResultMap = assistant.getConfiguration().getResultMap(ormResultMap);
+      TableMetaCache.getInstance().parse(orm, defaultResultMap, mapperInterface);
+
+      parseORMStatements(mapperInterface, assistant, methods, defaultResultMap);
+
+      handleKeyWords(mapperInterface, assistant, methods);
+    }
+
+    private void parseORMStatements(Class<?> mapperInterface, MapperBuilderAssistant assistant, Method[] methods, ResultMap defaultResultMap) {
+      for (Method method : methods) {
         if (shouldSkip(method)) {
           continue;
         }
-        doParseORM(orm, assistant, ormResultMap, method, type);
-      }
-      Class<?>[] interfaces = type.getInterfaces();
-      if (interfaces == null || interfaces.length == 0) {
-        return;
-      }
-      for (Class<?> newType : interfaces) {
-        handleAnnotation(orm, newType, null, assistant);
+        doParseORM(assistant, defaultResultMap, method, mapperInterface);
       }
     }
 
-    private void doParseORM(ORM orm, MapperBuilderAssistant assistant, String ormResultMap, Method method, Class<?> type) {
+    private void handleKeyWords(Class<?> mapperInterface, MapperBuilderAssistant assistant, Method[] methods) throws Throwable {
+      TableMetaCache.ORMConfig ormConfig = OrmUtils.getOrmConfig(OrmUtils.getOrmEntityClass(mapperInterface));
+      for (Method method : methods) {
+        if (!method.isBridge()) {
+          if (assistant.getConfiguration().hasStatement(assistant.getCurrentNamespace() + '.' + method.getName())) {
+            KeyWordHandler.getInstance().handleKeyWords(mapperInterface, method, ormConfig, assistant);
+          }
+        }
+      }
+    }
+
+    private void registKeyWords(Class<?> mapperInterface) {
+      KeyWords keyWords = mapperInterface.getAnnotation(KeyWords.class);
+      if (keyWords != null) {
+        for (KeyWord keyWord : keyWords.value()) {
+          KeyWordHandler.getInstance().registKeyWord(mapperInterface, keyWord);
+        }
+      }
+
+    }
+
+    private void doParseORM(MapperBuilderAssistant assistant, ResultMap ormResultMap, Method method, Class<?> mapperInterface) {
 
       String mappedStatementId = assistant.getCurrentNamespace() + '.' + method.getName();
       if (!assistant.getConfiguration().hasStatement(mappedStatementId)) {
@@ -78,7 +115,7 @@ public @interface ORM {
         return;
       }
 
-      String autoMapResultMapName = MybatisConfigUtils.generateResultMapName(type, method);
+      String autoMapResultMapName = MybatisConfigUtils.generateResultMapName(mapperInterface, method);
 
       if (!assistant.getConfiguration().hasResultMap(autoMapResultMapName)) {
         return;
@@ -89,17 +126,13 @@ public @interface ORM {
         return;
       }
 
-      ResultMap actualResultMap = assistant.getConfiguration().getResultMap(ormResultMap);
-      TableMetaCache.getInstance().parse(orm, actualResultMap, type);
-
-
       List<ResultMap> resultMaps = mappedStatement.getResultMaps();
 
       List<ResultMap> newResultMaps = Lists.newArrayListWithCapacity(resultMaps.size());
       for (ResultMap resultMap : resultMaps) {
         if (resultMap == autoMapResultMap) {
           //替换result map
-          newResultMaps.add(actualResultMap);
+          newResultMaps.add(ormResultMap);
         } else {
           newResultMaps.add(resultMap);
         }

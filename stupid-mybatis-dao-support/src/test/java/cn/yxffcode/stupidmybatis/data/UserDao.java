@@ -2,6 +2,8 @@ package cn.yxffcode.stupidmybatis.data;
 
 import cn.yxffcode.stupidmybatis.core.statement.TypeResultMap;
 import cn.yxffcode.stupidmybatis.data.parser.PrimaryKey;
+import cn.yxffcode.stupidmybatis.data.sql.KeyWord;
+import cn.yxffcode.stupidmybatis.data.sql.KeyWords;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Result;
 import org.apache.ibatis.annotations.Select;
@@ -16,6 +18,10 @@ import java.util.List;
     @Result(property = "name", column = "name_t")
 })
 @ORM(tableName = "user", resultMap = "userResultMap", primaryKey = @PrimaryKey(keyColumns = "id", autoGenerate = false))
+@KeyWords({
+    @KeyWord(name = "statementId", contentProvider = StatementIdSqlContentProvider.class),
+    @KeyWord(name = "notDeleted", value = "status != 0")
+})
 public interface UserDao extends BaseDataAccess<User, Integer> {
 
   @ORMSelect
@@ -27,7 +33,7 @@ public interface UserDao extends BaseDataAccess<User, Integer> {
   @Limitation(offsetParam = "offset", limitParam = "limit")
   List<User> selectPage2(@Param("offset") int offset, @Param("limit") int limit);
 
-  @Select("select @properties from user order by @primaryKey limit #{offset}, #{limit}")
+  @Select("select /* @statementId */ @columns from user where @notDeleted order by id limit #{offset}, #{limit}")
   List<User> selectPage(@Param("offset") int offset, @Param("limit") int limit);
 
   @ORMInsert

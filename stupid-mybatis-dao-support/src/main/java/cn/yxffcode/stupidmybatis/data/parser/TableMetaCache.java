@@ -36,9 +36,9 @@ public class TableMetaCache {
     checkNotNull(mapperInterface);
     Class<?> beanType = OrmUtils.getOrmEntityClass(mapperInterface);
 
-    BiMap<String, String> mappings = getPropertyColumnMappings(resultMap, (Class<?>) beanType);
+    BiMap<String, String> mappings = getPropertyColumnMappings(resultMap, beanType);
 
-    primaryKeyCache.put((Class<?>) beanType, new ORMConfig(orm, mappings));
+    primaryKeyCache.put(beanType, new ORMConfig(orm, mappings));
   }
 
   private BiMap<String, String> getPropertyColumnMappings(ResultMap resultMap, Class<?> beanType) {
