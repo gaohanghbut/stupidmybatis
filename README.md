@@ -18,6 +18,7 @@ StupidMybatis为增强mybatis映射接口，并使得映射接口的注解具备
 ## 框架特性
 * 默认ResultMap
 * 无SQL的注解支持，不需要写SQL就能完成单表的CURD操作
+* 支持SQL替换关键词，支持自定义替换关键词
 * 常用DAO方法（CURD）的封装，不需要重新开发
 * 可重用的@Results
 * 使用default method作为ResultMap
