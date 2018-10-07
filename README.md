@@ -184,7 +184,7 @@ public interface UserDao extends BaseDataAccess<User, Integer> {
 ```
 
 ### 宏
-想要使用宏，DAO映射接口上必须通过@ORM注解标记
+宏用于对比sql做文本替换，想要使用宏，DAO映射接口上必须通过@ORM注解标记
 #### 内置宏
 StupidMybatis提供了3个内置宏（@properties, @columns, @primaryKey），可以sql中使用，例如：
 ```java
