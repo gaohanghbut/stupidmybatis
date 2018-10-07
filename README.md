@@ -4,7 +4,7 @@ StupidMybatis是一个mybatis扩展框架，提供了可扩展的mybatis注解�
 ## 基础架构 
 ![StupidMybatis](img/arch.png)
 
-StupidMybatis为增强mybatis映射接口，并使得映射接口的注解具备较强的扩展性开发，从下到上分为三层
+StupidMybatis为增强mybatis映射接口，并使得映射接口的注解具备较强的扩展性开发，从下到上分为4层
 * 基础框架层：StupidMybatis基于mybatis, spring-mybatis以及mybatis-spring-boot开发
 * 核心层：StupidMybatis的核心能力
     * 提供可扩展的注解机制，分为配置处理注解与运行处理注解两部分，分别用于增强mybatis的配置和增强mybatis的数据访问的执行能力
