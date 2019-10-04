@@ -208,7 +208,7 @@ public interface UserDao {
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 @Inherited
-public @interface KeyWord {
+public @interface Macro {
   /**
    * @return 宏名
    */
