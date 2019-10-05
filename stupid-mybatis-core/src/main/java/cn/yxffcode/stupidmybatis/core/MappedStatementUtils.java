@@ -2,9 +2,11 @@ package cn.yxffcode.stupidmybatis.core;
 
 import org.apache.ibatis.mapping.BoundSql;
 import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.mapping.ResultMap;
 import org.apache.ibatis.mapping.SqlSource;
 
 import java.lang.reflect.Field;
+import java.util.Collections;
 
 /**
  * @author gaohang on 16/3/3.
@@ -24,6 +26,20 @@ public final class MappedStatementUtils {
         .fetchSize(ms.getFetchSize()).flushCacheRequired(true).keyGenerator(ms.getKeyGenerator())
         .parameterMap(ms.getParameterMap()).resource(ms.getResource())
         .resultMaps(ms.getResultMaps()).resultSetType(ms.getResultSetType())
+        .statementType(ms.getStatementType()).timeout(ms.getTimeout()).useCache(ms.isUseCache())
+        .build();
+    setField(nms, "keyColumns", ms.getKeyColumns());
+    setField(nms, "keyProperties", ms.getKeyProperties());
+    return nms;
+  }
+
+  public static MappedStatement copyMappedStatement(MappedStatement ms, ResultMap resultMap) {
+    MappedStatement nms;
+    nms = new MappedStatement.Builder(ms.getConfiguration(), ms.getId(), ms.getSqlSource(),
+        ms.getSqlCommandType()).cache(ms.getCache()).databaseId(ms.getDatabaseId())
+        .fetchSize(ms.getFetchSize()).flushCacheRequired(true).keyGenerator(ms.getKeyGenerator())
+        .parameterMap(ms.getParameterMap()).resource(ms.getResource())
+        .resultMaps(Collections.singletonList(resultMap)).resultSetType(ms.getResultSetType())
         .statementType(ms.getStatementType()).timeout(ms.getTimeout()).useCache(ms.isUseCache())
         .build();
     setField(nms, "keyColumns", ms.getKeyColumns());
